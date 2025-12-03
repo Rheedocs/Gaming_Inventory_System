@@ -1,0 +1,76 @@
+Eksamensoplæg: Gaming Inventory System
+
+Du er ansat som juniorudvikler hos spilfirmaet CodeCrafter Games, der udvikler rollespillet
+Legend of CodeCraft. I dette spil spiller inventory-systemet en vigtig rolle. Det giver spilleren
+mulighed for at administrere deres genstande på en effektiv og brugervenlig måde.
+
+Legend of CodeCraft foregår i en magisk verden, hvor spillere samler forskellige genstande
+såsom våben, potions og sjældne ressourcer. Spilleren kan kun bære en samlet vægt på
+maksimalt 50 kg. Inventory har 192 slots, hvoraf 32 er tilgængelige fra start. Resten skal købes
+eller optjenes.
+
+Systemet skal kunne følgende:
+
+- Give brugeren mulighed for at tilføje, fjerne og finde elementer.
+- Organisere og sortere elementer efter forskellige kriterier.
+- Sikre, at kapacitetsgrænser (vægt eller antal) ikke overskrides.
+- Kunne gemme og indlæse data via filhåndtering eller database.
+- Kategorisere elementer, fx hjelm, skulderbeskyttelse, rustning, våben og consumables.
+- Våben skal kunne være one-hand, off-hand eller two-hand.
+- Consumables skal kunne stables (fx potions, pile).
+
+Derudover ønsker CodeCrafter Games, at systemet er brugervenligt og har en interaktiv
+brugergrænseflade (enten konsolmenu eller JavaFX).
+
+Yderligere krav:
+
+- Systemet skal være fleksibelt og understøtte avancerede søgefunktioner.
+- Mulighed for filtrering af elementer efter forskellige kriterier.
+- Vise relevante statistikker.
+- Tillade eksport af data.
+- Kunne håndtere mange elementer effektivt.
+- Mulighed for nulstilling af data.
+- Interaktive UI-funktioner er et plus, men ikke et krav.
+
+Rammer for opgaven:
+
+Du skal selv analysere og finde de funktioner, klasser og metoder der er nødvendige.
+Det forventes, at du:
+
+- Dokumenterer dit arbejde og organiserer projektet korrekt.
+- Validerer brugerinput og håndterer fejl brugervenligt.
+- Anvender passende datastrukturer og effektive algoritmer til søgning/sortering.
+
+Systemet skal udvikles i Java. Der er ingen krav til UI-typen.
+
+Leverance:
+
+- En fungerende prototype der opfylder de centrale behov.
+- En kort skriftlig præsentation af systemets funktion og design.
+- Koden skal være velorganiseret, letlæselig og kommenteret.
+
+Gruppestørrelse: 2-5 studerende.
+
+Formkrav til dokumentation:
+Maks 10 normalsider (2400 tegn pr. side). Skal dokumentere metoder, teknikker og værktøjer
+brugt i analyse, design og implementering. Relevante diagrammer skal inkluderes.
+
+Aflevering:
+Upload via Moodle senest 18/12-24 kl. 23:00.
+
+Held og lykke med udviklingen af Legend of CodeCraft Inventory System.
+
+
+Input fra Mikkel:
+
+rigtig input
+outofbounds
+filenotfound
+
+serviceklasse eller managerclass
+imellem main og inventory
+
+3 lags model (gui->lager->dal)
+
+try catch er logik, altid skal udanset grænseflade
+kun I/O i main
