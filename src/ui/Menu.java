@@ -33,7 +33,10 @@ public class Menu {
             int choice = readInt();
 
             switch (choice) {
-                case 1 -> showInventory();
+                case 1 -> {              // vis inventory og tilbage til menu
+                    showInventory();
+                    pause();
+                }
                 case 2 -> addItem();
                 case 3 -> removeItem();
                 case 4 -> equipItem();
@@ -74,49 +77,89 @@ public class Menu {
 
     // ---------- menu actions ----------
 
-    private void showInventory() {
-        System.out.println(service.getInventory());
+    private void pause() {
+        System.out.println("\nPress ENTER to return to the menu...");
+        input.nextLine();
     }
+
+    private void showInventory() {
+        System.out.println();
+        System.out.print(service.getInventory().getDetailedOverview());
+    }
+
 
     private void addItem() {
         System.out.print("Name: ");
         String name = input.nextLine();
 
-        System.out.print("Type: ");
-        String type = input.nextLine();
+        // Type
+        String type;
+        while (true) {
+            System.out.print("Type (Weapon/Armour/Consumable): ");
+            type = input.nextLine().trim();
+            if (type.equalsIgnoreCase("Weapon") ||
+                    type.equalsIgnoreCase("Armour") ||
+                    type.equalsIgnoreCase("Consumable")) {
+                break;
+            }
+            System.out.println("Invalid type. Try again.");
+        }
 
-        System.out.print("Rarity: ");
-        String rarity = input.nextLine();
+        // Rarity
+        String rarity;
+        while (true) {
+            System.out.print("Rarity (Common/Uncommon/Rare/Epic): ");
+            rarity = input.nextLine().trim();
+            if (rarity.equalsIgnoreCase("Common") ||
+                    rarity.equalsIgnoreCase("Uncommon") ||
+                    rarity.equalsIgnoreCase("Rare") ||
+                    rarity.equalsIgnoreCase("Epic")) {
+                break;
+            }
+            System.out.println("Invalid rarity. Try again.");
+        }
 
-        System.out.print("Weight: ");
-        double weight = readDouble();
+        // Weight
+        double weight;
+        while (true) {
+            System.out.print("Weight (> 0): ");
+            weight = readDouble();
+            if (weight > 0) break;
+            System.out.println("Weight must be greater than 0.");
+        }
 
         String result = service.addItem(name, type, rarity, weight);
         System.out.println(result);
+        pause();
     }
 
+
     private void removeItem() {
-        showInventory();
+        showInventory();  // viser bare inventory
 
         System.out.print("Write the name of the item to remove: ");
         String name = input.nextLine();
 
         String result = service.removeItemByName(name);
         System.out.println(result);
+
+        pause(); // nu giver teksten mening: tilbage til menuen
     }
+
 
     private void equipItem() {
         showInventory();
         System.out.print("Item you want to equip: ");
         String name = input.nextLine();
 
-        Item item = service.getInventory().findItemByName(name);
+        Item item = service.findItemByName(name);
         if (item != null) {
             equippedItem = item;
             System.out.println("Equipped: " + item.getName());
         } else {
             System.out.println("Item does not exist!");
         }
+        pause();
     }
 
     private void unequipItem() {
@@ -126,6 +169,7 @@ public class Menu {
         } else {
             System.out.println("There is no item equipped!");
         }
+        pause();
     }
 
     private void useConsumable() {
@@ -135,18 +179,21 @@ public class Menu {
 
         String result = service.useConsumable(name);
         System.out.println(result);
+
+        pause();
     }
 
     private void searchItem() {
         System.out.print("Input name of item: ");
         String name = input.nextLine();
 
-        Item item = service.getInventory().findItemByName(name);
+        Item item = service.findItemByName(name);
         if (item != null) {
             System.out.println("Found: " + item);
         } else {
             System.out.println("Item not found!");
         }
+        pause();
     }
 
     private void sortItems() {
@@ -165,6 +212,7 @@ public class Menu {
             }
         }
         System.out.println("Inventory has been sorted!");
+        pause();
     }
 
     private void saveInvToFile() {
@@ -173,13 +221,22 @@ public class Menu {
 
         service.save(name);
         System.out.println("Inventory has been saved!");
+        pause();
     }
 
     private void loadInvFromFile() {
         System.out.print("Name of the file: ");
         String name = input.nextLine();
 
-        service.load(name);
-        System.out.println("Inventory has been loaded!");
+        boolean ok = service.load(name);
+
+        if (ok) {
+            System.out.println("Inventory has been loaded!");
+        } else {
+            System.out.println("Could not load inventory (file missing or invalid).");
+        }
+
+        pause();
+
     }
 }

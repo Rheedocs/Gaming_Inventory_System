@@ -1,0 +1,4 @@
+Consumable;name=HealthPotion;rarity=Common;weight=0.5;effect=Heal;stack=3
+Armour;name=SteelHelmet;rarity=Uncommon;weight=2.1;defence=7;slot=Head
+Weapon;name=Sword;rarity=Common;weight=3.5;damage=12;hand=OneHand
+Armour;name=KnightChestplate;rarity=Epic;weight=10.4;defence=20;slot=Chest

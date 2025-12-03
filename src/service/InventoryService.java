@@ -3,6 +3,8 @@ package service;
 import domain.Inventory;
 import domain.Item;
 
+import java.util.List;
+
 public class InventoryService {
 
     private final Inventory inventory;
@@ -17,6 +19,22 @@ public class InventoryService {
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public String getInventoryOverview() {
+        return inventory.getDetailedOverview();
+    }
+
+    public boolean isInventoryEmpty() {
+        return inventory.isEmpty();
+    }
+
+    public List<Item> getItems() {
+        return inventory.getItems();
+    }
+
+    public Item findItemByName(String name) {
+        return inventory.findItemByName(name);
     }
 
     public String addItem(String name, String type, String rarity, double weight) {
@@ -41,12 +59,16 @@ public class InventoryService {
 
     public String useConsumable(String name) {
         Item item = inventory.findItemByName(name);
-        if (item != null && inventory.removeItem(item)) {
-            return "Used consumable: " + item.getName();
-        } else  {
+        if (item == null) {
             return "Could not use consumable. Item not found.";
         }
+        if (!item.getType().equalsIgnoreCase("Consumable")) {
+            return "Item is not a consumable.";
+        }
+        inventory.removeItem(item);
+        return "Used consumable: " + item.getName();
     }
+
 
     public void sortByName() {
         inventory.sortByName();
@@ -60,7 +82,7 @@ public class InventoryService {
         inventory.saveToFile(path);
     }
 
-    public  void load(String path) {
-        inventory.loadFromFile(path);
+    public boolean load(String path) {
+        return inventory.loadFromFile(path);
     }
 }

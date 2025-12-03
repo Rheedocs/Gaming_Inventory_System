@@ -1,6 +1,5 @@
 package domain;
 
-import exceptions.NegativeValues;
 import java.io.*;
 import java.util.*;
 
@@ -87,14 +86,14 @@ public class Inventory {
                             ";stack=" + c.stackSize());
                 }
             }
-            System.out.println("Inventory saved to file" + path);
+            System.out.println("Inventory saved to file: " + path);
 
         } catch (Exception e) {
             System.out.println("Error saving file: " + e.getMessage());
         }
     }
 
-    public void loadFromFile(String path) {
+    public boolean loadFromFile(String path) {
         try (Scanner scanner = new Scanner(new File(path))) {
 
             slots.clear();
@@ -123,7 +122,6 @@ public class Inventory {
                         w.setHandtype(map.get("hand"));
                         slots.add(w);
                     }
-
                     case "Armour" -> {
                         Armour a = new Armour(
                                 map.get("name"),
@@ -135,7 +133,6 @@ public class Inventory {
                         );
                         slots.add(a);
                     }
-
                     case "Consumable" -> {
                         Consumable c = new Consumable(
                                 map.get("name"),
@@ -150,13 +147,12 @@ public class Inventory {
                 }
             }
 
-            System.out.println("Inventory loaded.");
+            return true;  // success
 
         } catch (Exception e) {
-            System.out.println("Error loading file: " + e.getMessage());
+            return false; // fail
         }
     }
-
 
     public int getUnlockedSlots () {
             return unlockedSlots;
@@ -180,11 +176,60 @@ public class Inventory {
         return maxWeight;
     }
 
+    // Lille helper, hvis vi får brug for den flere steder
+    public boolean isEmpty() {
+        return slots.isEmpty();
+    }
+
+    // Sikker read-only adgang til listen (UI må gerne kigge, men ikke ændre)
+    public List<Item> getItems () {
+        return Collections.unmodifiableList(slots);
+    }
+
+    public String getDetailedOverview() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("====== INVENTORY OVERVIEW ======\n");
+        sb.append("-------------------------------------------------------------\n");
+        // Header skrives KUN én gang, før vi looper
+        sb.append(String.format(
+                "%-3s %-18s %-12s %-12s %-8s%n",
+                "No", "Name", "Type", "Rarity", "Weight"
+        ));
+        sb.append("-------------------------------------------------------------\n");
+
+        if (slots.isEmpty()) {
+            sb.append("Inventory is empty.\n");
+        } else {
+            int index = 1;
+            for (Item item : slots) {
+                sb.append(String.format(
+                        "%-3d %-18s %-12s %-12s %-8.1f%n",
+                        index++,
+                        item.getName(),
+                        item.getType(),
+                        item.getRarity(),
+                        item.getWeight()
+                ));
+            }
+        }
+
+        sb.append("-------------------------------------------------------------\n");
+        sb.append(String.format(
+                "Items: %d | Total weight: %.1f / %.1f | Unlocked slots: %d / %d%n",
+                slots.size(),
+                getTotalWeight(),
+                maxWeight,
+                unlockedSlots,
+                maxSlots
+        ));
+
+        return sb.toString();
+    }
+
     @Override
     public String toString () {
-        return "Inventory: Items | " + slots.size() +
-                    " Total Weight | " + getTotalWeight() +
-                    " Unlocked Slots | " + getUnlockedSlots() + "/" + maxSlots;
+        return getDetailedOverview();
     }
 }
 
