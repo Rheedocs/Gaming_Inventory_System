@@ -1,8 +1,8 @@
-package PlayerBase;
+package domain;
 
-import Exceptions.MaxWeightReached;
-import Exceptions.NegativeValues;
-import Inventory.Inventory;
+import domain.Inventory;
+import exceptions.MaxWeightReached;
+import exceptions.NegativeValues;
 
 public class Player {
     private String name;
@@ -14,13 +14,9 @@ public class Player {
     public Player(String name, double totalWeight, int inventorySlots) {
         this.name = name;
         this.inventory = new Inventory();
-        syncFromInventory();
+        this.totalWeight = totalWeight;
+        this.inventorySlots = inventorySlots;
 
-    }
-
-    private void syncFromInventory() {
-        this.totalWeight = inventory.getTotalWeight();
-        this.inventorySlots = inventory.getUnlockedSlots();
     }
 
     public String getName() {
@@ -53,6 +49,14 @@ public class Player {
 
     public void setInventorySlots(int inventorySlots) {
         this.inventorySlots = inventorySlots;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 
     @Override

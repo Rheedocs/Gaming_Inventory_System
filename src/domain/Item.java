@@ -1,6 +1,6 @@
-package Inventory;
+package domain;
 
-import Exceptions.ItemNotFound;
+import exceptions.ItemNotFound;
 
 public class Item {
 

@@ -1,4 +1,4 @@
-package Inventory;
+package domain;
 
 public class Consumable extends Item {
     private String effectType;

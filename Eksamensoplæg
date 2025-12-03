@@ -1,4 +1,4 @@
-Eksamensoplæg: Gaming Inventory System
+Eksamensoplæg: Gaming domain System
 
 Du er ansat som juniorudvikler hos spilfirmaet CodeCrafter Games, der udvikler rollespillet
 Legend of CodeCraft. I dette spil spiller inventory-systemet en vigtig rolle. Det giver spilleren
@@ -6,7 +6,7 @@ mulighed for at administrere deres genstande på en effektiv og brugervenlig må
 
 Legend of CodeCraft foregår i en magisk verden, hvor spillere samler forskellige genstande
 såsom våben, potions og sjældne ressourcer. Spilleren kan kun bære en samlet vægt på
-maksimalt 50 kg. Inventory har 192 slots, hvoraf 32 er tilgængelige fra start. Resten skal købes
+maksimalt 50 kg. domain har 192 slots, hvoraf 32 er tilgængelige fra start. Resten skal købes
 eller optjenes.
 
 Systemet skal kunne følgende:
@@ -58,10 +58,10 @@ brugt i analyse, design og implementering. Relevante diagrammer skal inkluderes.
 Aflevering:
 Upload via Moodle senest 18/12-24 kl. 23:00.
 
-Held og lykke med udviklingen af Legend of CodeCraft Inventory System.
+Held og lykke med udviklingen af Legend of CodeCraft domain System.
 
 
-Input fra Mikkel:
+Input fra Mikkel (skrevet ned som han siger det):
 
 rigtig input
 outofbounds

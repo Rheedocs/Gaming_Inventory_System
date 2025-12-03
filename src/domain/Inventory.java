@@ -1,6 +1,6 @@
-package Inventory;
-import Exceptions.NegativeValues;
+package domain;
 
+import exceptions.NegativeValues;
 import java.io.*;
 import java.util.*;
 
@@ -10,7 +10,7 @@ public class Inventory {
     private int maxSlots = 192;
     private int unlockedSlots = 32;
 
-    private ArrayList<Item> slots = new ArrayList<>();
+    private final ArrayList<Item> slots = new ArrayList<>();
 
     public Inventory() {
     }
@@ -44,10 +44,10 @@ public class Inventory {
         return slots.remove(item);
     }
 
-    public String findItemByName(String name) {
+    public Item findItemByName(String name) {
         for (Item item : slots) {
             if (item.getName().equalsIgnoreCase(name)) {
-                return name;
+                return item;
             }
         }
         return null;
@@ -77,12 +77,12 @@ public class Inventory {
                     writer.println("Armour;name=" + a.getName() +
                             ";rarity=" + a.getRarity() +
                             ";weight=" + a.getWeight() +
-                            ";damage=" + a.getDefence() +
-                            ";hand=" + a.getSlot());
+                            ";defence=" + a.getDefence() +
+                            ";slot=" + a.getSlot());
                 } else if (item instanceof Consumable c) {
                     writer.println("Consumable;name=" + c.getName() +
                             ";rarity=" + c.getRarity() +
-                            ";weigth=" + c.getWeight() +
+                            ";weight=" + c.getWeight() +
                             ";effect=" + c.getEffectType() +
                             ";stack=" + c.stackSize());
                 }
@@ -94,8 +94,7 @@ public class Inventory {
         }
     }
 
-    public void loadFromFile (String path){
-            // TODO: filhåndtering
+    public void loadFromFile(String path) {
         try (Scanner scanner = new Scanner(new File(path))) {
 
             slots.clear();
@@ -143,14 +142,21 @@ public class Inventory {
                                 "Consumable",
                                 map.get("rarity"),
                                 Double.parseDouble(map.get("weight"))
+                        );
+                        c.setEffectType(map.get("effect"));
+                        c.setStackSize(Integer.parseInt(map.get("stack")));
+                        slots.add(c);
                     }
-
                 }
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+
+            System.out.println("Inventory loaded.");
+
+        } catch (Exception e) {
+            System.out.println("Error loading file: " + e.getMessage());
         }
     }
+
 
     public int getUnlockedSlots () {
             return unlockedSlots;

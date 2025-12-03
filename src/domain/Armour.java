@@ -1,4 +1,4 @@
-package Inventory;
+package domain;
 
 public class Armour extends Item {
 
