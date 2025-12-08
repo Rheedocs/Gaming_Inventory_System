@@ -128,7 +128,25 @@ public class Inventory {
         slots.sort(Comparator.comparing(Item::getType));
     }
 
-    public void sortByRarity() {slots.sort(Comparator.comparing(Item::getRarity));}
+    public void sortByRarity() {
+        int n = slots.size();
+
+        for (int i = 1; i < n; i++) {
+            Item current = slots.get(i);
+            int currentRank = rarityRank(current.getRarity());
+            int j = i - 1;
+
+            while (j >= 0 && rarityRank(slots.get(j).getRarity()) > currentRank) {
+                slots.set(j + 1, slots.get(j));
+                j--;
+            }
+
+            // indsæt current
+            slots.set(j + 1, current);
+        }
+    }
+
+
 
     // --- tekstlig oversigt ---
 
@@ -183,7 +201,17 @@ public class Inventory {
         return true;
     }
 
+    private int rarityRank(String rarity) {
+        if (rarity == null) return 0;
 
+        return switch (rarity.toLowerCase()) {
+            case "common" -> 1;
+            case "uncommon" -> 2;
+            case "rare" -> 3;
+            case "epic" -> 4;
+            default -> 0;
+        };
+    }
 
     @Override
     public String toString() {

@@ -1,3 +1,6 @@
+* Fuldført/rettet
+- Stadig igang
+
 * Rarity skriver ikke ugyldig hvis du indtaster andet end angivet rarity, rarities skal også lige have store bogstaver.
 * Skal nok også tjekke om det er det samme med de andre ting.
 - Måske programmet skal skrive navne med stort bogstav, hvis man skriver lowercase?
