@@ -39,7 +39,9 @@ public class Menu {
             System.out.println("10. Sort items in inventory");
             System.out.println("11. Save inventory");
             System.out.println("12. Load inventory from file");
-            System.out.println("13. End");
+            System.out.println("13. Buy inventory slots");
+            System.out.println("14. End");
+
             System.out.println("============ ---- ============");
             System.out.print("Choose between (1-13): ");
 
@@ -58,7 +60,8 @@ public class Menu {
                 case 10 -> sortItems();
                 case 11 -> saveInvToFile();
                 case 12 -> loadInvFromFile();
-                case 13 -> running = false;
+                case 13 -> buySlotsMenu();
+                case 14 -> running = false;
                 default -> System.out.println("Choice does not fit between 1-13!");
             }
         }
@@ -188,35 +191,57 @@ public class Menu {
         pause();
     }
 
+
     private void equipItem() {
-        if (service.isInventoryEmpty()) {
-            System.out.println("Inventory is empty.");
+
+            if (service.isInventoryEmpty()) {
+                System.out.println("Inventory is empty.");
+                pause();
+                return;
+            }
+            showInventory();
+        while (true) {
+            System.out.print("Item you want to equip: ");
+            String name = input.nextLine().trim();
+
+            if (name.equalsIgnoreCase("exit")) {
+                return; // go back to menu
+                }
+
+            Item item = service.findItemByName(name);
+
+            if (item == null) {
+                System.out.println("Item does not exist.");
+                continue;
+            }
+            String result = service.equip(item);
+            System.out.println(result);
             pause();
             return;
         }
 
-        showInventory();
-        System.out.print("Item you want to equip: ");
-        String name = input.nextLine();
-
-        Item item = service.findItemByName(name);
-        if (item != null) {
-            String result = service.equip(item);
-            System.out.println(result);
-        } else {
-            System.out.println("Item does not exist!");
-        }
-        pause();
     }
+
 
     private void unequipItem() {
-        System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet): ");
-        String slot = input.nextLine().trim();
+        while (true) {
+            System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet): ");
+            String slot = input.nextLine().trim();
 
-        String result = service.unequip(slot);
-        System.out.println(result);
-        pause();
+            if (slot.equalsIgnoreCase("exit")) {
+                return;
+            }
+
+            Item item = service.findItemByName(slot);
+
+            if (item == null) {
+                System.out.println("Item does not exist.");
+                continue;
+            }
+            pause();
+        }
     }
+
 
     private void useConsumable() {
         if (service.isInventoryEmpty()) {
@@ -356,6 +381,18 @@ public class Menu {
         } else {
             System.out.println("Could not load inventory (file missing or invalid).");
         }
+        pause();
+    }
+
+    public void buySlotsMenu() {
+        System.out.println("=== BUY SLOTS ===");
+        System.out.println("Unlocked: " + service.getInventory().getUnlockedSlots() + "/" + service.getInventory().getMaxSlots());
+
+        System.out.println("How many slots do you wanna buy?");
+        int amount = readInt();
+
+        String result = service.buyInventorySlots(amount);
+        System.out.println(result);
         pause();
     }
 

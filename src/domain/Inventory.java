@@ -174,6 +174,19 @@ public class Inventory {
         return sb.toString();
     }
 
+    public boolean buyInventorySlots(int amount) {
+        if (amount <= 0){
+            System.out.println("Amount must be greather then 0");
+        }
+        if (unlockedSlots + amount > maxSlots) {
+            return false;
+        }
+        unlockedSlots += amount;
+        return true;
+    }
+
+
+
     @Override
     public String toString() {
         return getDetailedOverview();

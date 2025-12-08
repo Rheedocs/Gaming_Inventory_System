@@ -44,6 +44,8 @@ public class InventoryService {
         return inventory.findItemByName(name);
     }
 
+
+
     // Opretter det konkrete item (Weapon/Armour/Consumable) ud fra input fra Menu
     public String addItem(
             String name,
@@ -211,6 +213,23 @@ public class InventoryService {
         }
         return results;
     }
+
+    public String buyInventorySlots(int amount) {
+        if (amount <= 0) {
+            return "Amount must be greater than 0.";
+        }
+        boolean ok = inventory.buyInventorySlots(amount);
+
+        if (ok) {
+            System.out.println("You have unlocked " + amount + " inventory slots");
+            System.out.println(inventory.getUnlockedSlots() + "/" + inventory.getMaxSlots());
+            return "Slots successfully unlocked";
+        } else {
+            return "You can't buy more slots. Maximum slot capicity reached";
+        }
+    }
+
+
 
     // filtrerer efter rarity
     public List<Item> filterByRarity(String rarity) {

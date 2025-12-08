@@ -1,17 +1,18 @@
-- Rarity skriver ikke ugyldig hvis du indtaster andet end angivet rarity, rarities skal også lige have store bogstaver.
-- Skal nok også tjekke om det er det samme med de andre ting.
+* Rarity skriver ikke ugyldig hvis du indtaster andet end angivet rarity, rarities skal også lige have store bogstaver.
+* Skal nok også tjekke om det er det samme med de andre ting.
 - Måske programmet skal skrive navne med stort bogstav, hvis man skriver lowercase?
 - Nogle menuer og valg sender dig tilbage i menuen, men måske de bør fortsætte til man er færdig (fx. equip/unequip).
 - Giver det mening at vise consumables i equip/unequip? nok for en arrow bundle f.eks, men food eller potions?
 - Flere exceptions? et sted der ikke er main, som tester fejl? skal nok lige læse opgaven igennem igen...
-- Unequip siger bare fx. unequipped feet, burde nok sige item navnet.
+* Unequip siger bare fx. unequipped feet, burde nok sige item navnet.
 - effectType bliver ikke nævnt eller vist info, når man bruger noget vedr. consumables.
 - Inventory har ikke nogle måde at tælle/vise ved flere af de samme items, men måske godt at have.
-- Flere sort options måske, lige nu er det kun name og weight.
 - Nye filer der bliver oprettet gennem programmet, opdateres ikke i project mappen, før programmet slutter. men de kan
 gemmes på og loades mens programmet køres, weird.
 - Samle switch cases, så f.eks. equip/unequip i samme og så vælger man, samme med save og load osv.
 - Burde vi få programmet til at læse spilleren og dens inventory i sig selv? lige skriver du et navn og starter med en
 inventory
 - Sortering sortere lige nu efter alfabetisk eller nummer rækkefølge, hvilket ikke giver mening for rarity.
+Mikkel siger vi mindst skal bruge en algo sort som vi har lært, vi vælger rarity her
 - Enum for rarity og type?
+- nogle actions sender dig tilbage i menuen hvis du giver forkert input
