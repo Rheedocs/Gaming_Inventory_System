@@ -1,4 +1,23 @@
-Consumable;name=HealthPotion;rarity=Common;weight=0.5;effect=Heal;stack=3
-Armour;name=SteelHelmet;rarity=Uncommon;weight=2.1;defence=7;slot=Head
-Weapon;name=Sword;rarity=Common;weight=3.5;damage=12;hand=OneHand
-Armour;name=KnightChestplate;rarity=Epic;weight=10.4;defence=20;slot=Chest
+# Inventory settings
+maxWeight=50
+maxSlots=192
+unlockedSlots=32
+
+# Items
+Weapon;name=Iron Sabre;rarity=Common;weight=2.5;damage=8;hand=OneHand
+Weapon;name=Moon Cleaver;rarity=Epic;weight=7.3;damage=22;hand=TwoHand
+Weapon;name=Glimmer Dagger;rarity=Uncommon;weight=0.9;damage=5;hand=OffHand
+Weapon;name=Stormbreaker Bow;rarity=Rare;weight=4.8;damage=17;hand=TwoHand
+
+Armour;name=Reinforced Hood;rarity=Uncommon;weight=1.2;defence=4;slot=Head
+Armour;name=Kingsguard Vest;rarity=Rare;weight=5.0;defence=12;slot=Chest
+Armour;name=Shadow Legwraps;rarity=Epic;weight=3.1;defence=9;slot=Legs
+Armour;name=Swiftwalker Boots;rarity=Common;weight=2.0;defence=3;slot=Feet
+Armour;name=Runebound Shield;rarity=Rare;weight=6.7;defence=15;slot=OffHand
+
+Consumable;name=Health Potion;rarity=Common;weight=0.5;effect=Heal;stack=3
+Consumable;name=Mana Elixir;rarity=Rare;weight=0.4;effect=Restore Mana;stack=2
+Consumable;name=Stamina Brew;rarity=Uncommon;weight=0.6;effect=Stamina Boost;stack=5
+Consumable;name=Ember Tonic;rarity=Epic;weight=0.3;effect=Fire Burst;stack=1
+Consumable;name=Traveler's Rations;rarity=Common;weight=0.7;effect=Small Heal;stack=4
+Consumable;name=Frostbite Vial;rarity=Rare;weight=0.2;effect=Freeze Strike;stack=1

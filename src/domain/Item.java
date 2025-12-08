@@ -1,7 +1,5 @@
 package domain;
 
-import exceptions.ItemNotFound;
-
 public class Item {
 
     private String name;
@@ -15,31 +13,44 @@ public class Item {
         this.rarity = rarity;
         this.weight = weight;
     }
-    public String getName(){return name;}
 
-    public void setName(String name) throws ItemNotFound {this.name = name;}
+    public String getName() {
+        return name;
+    }
 
-    public String getType(){return type;}
+    public void setName(String name) { // simpelt navnsskift
+        this.name = name;
+    }
 
-    public void setType(String type){
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
         this.type = type;
     }
 
-    public String getRarity(){return rarity;}
+    public String getRarity() {
+        return rarity;
+    }
 
-    public void setRarity(String rarity){
+    public void setRarity(String rarity) {
         this.rarity = rarity;
     }
 
-    public double getWeight(){return weight;}
+    public double getWeight() {
+        return weight;
+    }
 
-    public void setWeight(double weight){
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
     @Override
-    public String toString(){
-        return "Name: " + name + ", Type: " + type + ", Rarity: " + rarity + ", Weight: " + weight;
+    public String toString() {
+        return "Name: " + name +
+                ", Type: " + type +
+                ", Rarity: " + rarity +
+                ", Weight: " + weight;
     }
-
 }

@@ -3,7 +3,7 @@ package domain;
 public class Armour extends Item {
 
     private int defence;
-    private String slot;
+    private String slot; // fx Head, Chest, Legs, Feet
 
     public Armour(String name, String type, String rarity, double weight, int defence, String slot) {
         super(name, type, rarity, weight);

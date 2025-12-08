@@ -1,6 +1,7 @@
 package domain;
 
 public class Consumable extends Item {
+
     private String effectType;
     private int stackSize;
 
@@ -8,19 +9,19 @@ public class Consumable extends Item {
         super(name, type, rarity, weight);
     }
 
-    public String getEffectType(){
+    public String getEffectType() {
         return effectType;
     }
 
-    public void setEffectType(String effectType){
+    public void setEffectType(String effectType) {
         this.effectType = effectType;
     }
 
-    public int stackSize(){
+    public int getStackSize() { // nuværende stack
         return stackSize;
     }
 
-    public void setStackSize(int stackSize){
+    public void setStackSize(int stackSize) {
         this.stackSize = stackSize;
     }
 }

@@ -1,14 +1,18 @@
 package domain;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class Inventory {
 
+    // kapacitet for inventory
     private double maxWeight = 50;
     private int maxSlots = 192;
     private int unlockedSlots = 32;
 
+    // selve listen af items
     private final ArrayList<Item> slots = new ArrayList<>();
 
     public Inventory() {
@@ -20,6 +24,32 @@ public class Inventory {
         this.unlockedSlots = unlockedSlots;
     }
 
+    // --- settings / metadata ---
+
+    public double getMaxWeight() {
+        return maxWeight;
+    }
+
+    public void setMaxWeight(double maxWeight) {
+        this.maxWeight = maxWeight;
+    }
+
+    public int getMaxSlots() {
+        return maxSlots;
+    }
+
+    public void setMaxSlots(int maxSlots) {
+        this.maxSlots = maxSlots;
+    }
+
+    public int getUnlockedSlots() {
+        return unlockedSlots;
+    }
+
+    public void setUnlockedSlots(int unlockedSlots) {
+        this.unlockedSlots = unlockedSlots;
+    }
+
     public double getTotalWeight() {
         double sum = 0;
         for (Item item : slots) {
@@ -28,13 +58,36 @@ public class Inventory {
         return sum;
     }
 
+    // bruges ved load fra fil – vi starter med tomt inventory
+    public void clearItems() {
+        slots.clear();
+    }
+
+    // --- core logik: add / remove / find ---
+
     public boolean addItem(Item item) {
+
+        // stacking for consumables med samme navn
+        if (item instanceof Consumable cNew) {
+            for (Item existing : slots) {
+                if (existing instanceof Consumable cOld &&
+                        cOld.getName().equalsIgnoreCase(cNew.getName())) {
+
+                    // læg stacksize sammen i samme slot
+                    cOld.setStackSize(cOld.getStackSize() + cNew.getStackSize());
+                    return true; // ingen ekstra slot ved stacking
+                }
+            }
+        }
+
+        // slot + vægt check for helt nye items
         if (slots.size() >= unlockedSlots) {
             return false;
         }
         if (getTotalWeight() + item.getWeight() > maxWeight) {
             return false;
         }
+
         slots.add(item);
         return true;
     }
@@ -52,6 +105,17 @@ public class Inventory {
         return null;
     }
 
+    public boolean isEmpty() {
+        return slots.isEmpty();
+    }
+
+    // UI får kun lov at læse listen, ikke ændre den direkte
+    public List<Item> getItems() {
+        return Collections.unmodifiableList(slots);
+    }
+
+    // --- sortering ---
+
     public void sortByName() {
         slots.sort(Comparator.comparing(Item::getName));
     }
@@ -60,138 +124,21 @@ public class Inventory {
         slots.sort(Comparator.comparing(Item::getWeight));
     }
 
-    public void saveToFile(String path) {
-        // TODO: filhåndtering
-        try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {
-
-            for (Item item : slots) {
-
-                if (item instanceof Weapon w) {
-                    writer.println("Weapon;name=" + w.getName() +
-                            ";rarity=" + w.getRarity() +
-                            ";weight=" + w.getWeight() +
-                            ";damage=" + w.getDamage() +
-                            ";hand=" + w.getHandtype());
-                } else if (item instanceof Armour a) {
-                    writer.println("Armour;name=" + a.getName() +
-                            ";rarity=" + a.getRarity() +
-                            ";weight=" + a.getWeight() +
-                            ";defence=" + a.getDefence() +
-                            ";slot=" + a.getSlot());
-                } else if (item instanceof Consumable c) {
-                    writer.println("Consumable;name=" + c.getName() +
-                            ";rarity=" + c.getRarity() +
-                            ";weight=" + c.getWeight() +
-                            ";effect=" + c.getEffectType() +
-                            ";stack=" + c.stackSize());
-                }
-            }
-            System.out.println("Inventory saved to file: " + path);
-
-        } catch (Exception e) {
-            System.out.println("Error saving file: " + e.getMessage());
-        }
+    public void sortByType() {
+        slots.sort(Comparator.comparing(Item::getType));
     }
 
-    public boolean loadFromFile(String path) {
-        try (Scanner scanner = new Scanner(new File(path))) {
-
-            slots.clear();
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(";");
-
-                String type = parts[0];
-                Map<String, String> map = new HashMap<>();
-
-                for (int i = 1; i < parts.length; i++) {
-                    String[] kv = parts[i].split("=");
-                    map.put(kv[0], kv[1]);
-                }
-
-                switch (type) {
-                    case "Weapon" -> {
-                        Weapon w = new Weapon(
-                                map.get("name"),
-                                "Weapon",
-                                map.get("rarity"),
-                                Double.parseDouble(map.get("weight"))
-                        );
-                        w.setDamage(Integer.parseInt(map.get("damage")));
-                        w.setHandtype(map.get("hand"));
-                        slots.add(w);
-                    }
-                    case "Armour" -> {
-                        Armour a = new Armour(
-                                map.get("name"),
-                                "Armour",
-                                map.get("rarity"),
-                                Double.parseDouble(map.get("weight")),
-                                Integer.parseInt(map.get("defence")),
-                                map.get("slot")
-                        );
-                        slots.add(a);
-                    }
-                    case "Consumable" -> {
-                        Consumable c = new Consumable(
-                                map.get("name"),
-                                "Consumable",
-                                map.get("rarity"),
-                                Double.parseDouble(map.get("weight"))
-                        );
-                        c.setEffectType(map.get("effect"));
-                        c.setStackSize(Integer.parseInt(map.get("stack")));
-                        slots.add(c);
-                    }
-                }
-            }
-
-            return true;  // success
-
-        } catch (Exception e) {
-            return false; // fail
-        }
+    public void sortByRarity() {
+        slots.sort(Comparator.comparing(Item::getRarity));
     }
 
-    public int getUnlockedSlots () {
-            return unlockedSlots;
-    }
-
-    public void unlockSlots ( int amount){
-        if (unlockedSlots + amount <= maxSlots) {
-            unlockedSlots += amount;
-        }
-    }
-
-    public int getMaxSlots () {
-        return maxSlots;
-    }
-
-    public void setMaxSlots ( int maxSlots){
-        this.maxSlots = maxSlots;
-    }
-
-    public double getMaxWeight () {
-        return maxWeight;
-    }
-
-    // Lille helper, hvis vi får brug for den flere steder
-    public boolean isEmpty() {
-        return slots.isEmpty();
-    }
-
-    // Sikker read-only adgang til listen (UI må gerne kigge, men ikke ændre)
-    public List<Item> getItems () {
-        return Collections.unmodifiableList(slots);
-    }
+    // --- tekstlig oversigt ---
 
     public String getDetailedOverview() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("====== INVENTORY OVERVIEW ======\n");
         sb.append("-------------------------------------------------------------\n");
-        // Header skrives KUN én gang, før vi looper
         sb.append(String.format(
                 "%-3s %-18s %-12s %-12s %-8s%n",
                 "No", "Name", "Type", "Rarity", "Weight"
@@ -228,9 +175,7 @@ public class Inventory {
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return getDetailedOverview();
     }
 }
-
-
