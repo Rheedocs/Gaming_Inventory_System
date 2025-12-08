@@ -202,6 +202,7 @@ public class Menu {
             showInventory();
         while (true) {
             System.out.print("Item you want to equip: ");
+            System.out.println("Write 'exit' to quit");
             String name = input.nextLine().trim();
 
             if (name.equalsIgnoreCase("exit")) {
@@ -222,26 +223,46 @@ public class Menu {
 
     }
 
-
     private void unequipItem() {
+
+        if (service.isEquipmentEmpty()) {
+            System.out.println("Nothing is equipped.");
+            pause();
+            return;
+        }
+
         while (true) {
             System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet): ");
+            System.out.println("\nWrite 'exit' to quit");
             String slot = input.nextLine().trim();
 
             if (slot.equalsIgnoreCase("exit")) {
+                System.out.println("Returning to menu");
                 return;
             }
 
-            Item item = service.findItemByName(slot);
+            if (!slot.equalsIgnoreCase("MainHand")
+                    && !slot.equalsIgnoreCase("OffHand")
+                    && !slot.equalsIgnoreCase("Head")
+                    && !slot.equalsIgnoreCase("Chest")
+                    && !slot.equalsIgnoreCase("Legs")
+                    && !slot.equalsIgnoreCase("Feet")) {
 
-            if (item == null) {
-                System.out.println("Item does not exist.");
+                System.out.println("Invalid input. Try again.");
                 continue;
             }
+
+            String result = service.unequip(slot);
+            System.out.println(result);
             pause();
+
+            if (service.isEquipmentEmpty()) {
+                System.out.println("Nothing else is equipped.");
+                pause();
+                return;
+            }
         }
     }
-
 
     private void useConsumable() {
         if (service.isInventoryEmpty()) {

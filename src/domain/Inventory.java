@@ -128,9 +128,7 @@ public class Inventory {
         slots.sort(Comparator.comparing(Item::getType));
     }
 
-    public void sortByRarity() {
-        slots.sort(Comparator.comparing(Item::getRarity));
-    }
+    public void sortByRarity() {slots.sort(Comparator.comparing(Item::getRarity));}
 
     // --- tekstlig oversigt ---
 

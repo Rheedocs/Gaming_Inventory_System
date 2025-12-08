@@ -14,6 +14,7 @@ public class InventoryService {
 
     private final Player player;        // den aktive spiller
     private final Inventory inventory;  // genvej til spillerens inventory
+    private boolean equipmentEmpty;
 
     public InventoryService(Player player) {
         this.player = player;
@@ -241,5 +242,8 @@ public class InventoryService {
             }
         }
         return results;
+    }
+    public boolean isEquipmentEmpty() {
+        return player.getEquipment().isEmpty();
     }
 }

@@ -99,4 +99,13 @@ public class Equipment {
                         "Legs: " + (legs != null ? legs.getName() : "-") + "\n" +
                         "Feet: " + (feet != null ? feet.getName() : "-");
     }
+
+    public boolean isEmpty() {
+        return mainHand == null &&
+                offHand == null &&
+                head == null &&
+                chest == null &&
+                legs == null &&
+                feet == null;
+    }
 }
