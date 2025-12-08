@@ -191,12 +191,15 @@ public class Inventory {
     }
 
     public boolean buyInventorySlots(int amount) {
-        if (amount <= 0){
-            System.out.println("Amount must be greather then 0");
+        if (amount <= 0) {
+            System.out.println("Amount must be greater than 0.");
+            return false;
         }
+
         if (unlockedSlots + amount > maxSlots) {
             return false;
         }
+
         unlockedSlots += amount;
         return true;
     }

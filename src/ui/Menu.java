@@ -41,11 +41,22 @@ public class Menu {
             System.out.println("12. Load inventory from file");
             System.out.println("13. Buy inventory slots");
             System.out.println("14. End");
-
             System.out.println("============ ---- ============");
-            System.out.print("Choose between (1-13): ");
 
-            int choice = readInt();
+            int choice;
+
+            // læs et gyldigt menuvalg mellem 1 og 14
+            while (true) {
+                System.out.print("Choose between (1-14): ");
+                choice = readInt();
+
+                if (choice >= 1 && choice <= 14) {
+                    break; // valid → videre til switch
+                }
+
+                System.out.println("Invalid choice. Please choose a number between 1 and 14.");
+                pause(); // så brugeren ser beskeden
+            }
 
             switch (choice) {
                 case 1 -> { showInventory(); pause(); }
@@ -62,12 +73,15 @@ public class Menu {
                 case 12 -> loadInvFromFile();
                 case 13 -> buySlotsMenu();
                 case 14 -> running = false;
-                default -> System.out.println("Choice does not fit between 1-13!");
+                default -> {
+                    System.out.println("Invalid choice. Please enter a number between 1 and 14.");
+                    pause();
+                }
             }
         }
-
         System.out.println("Menu has closed!");
     }
+
 
     // ---------- main actions ----------
 
@@ -119,7 +133,7 @@ public class Menu {
 
         double weight;
         while (true) {
-            System.out.print("Weight (> 0): ");
+            System.out.print("Weight (must be > 0): ");
             weight = readDouble();
             if (weight > 0) break;
             System.out.println("Weight must be greater than 0.");
@@ -182,14 +196,29 @@ public class Menu {
             return;
         }
 
-        showInventory();
-        System.out.print("Item you want to remove: ");
-        String name = input.nextLine();
+        while (true) {
+            showInventory();
+            System.out.print("Item you want to remove (or type 'exit' to go back): ");
+            String name = input.nextLine().trim();
 
-        String result = service.removeItemByName(name);
-        System.out.println(result);
-        pause();
+            if (name.equalsIgnoreCase("exit")) {
+                return; // tilbage til hovedmenu
+            }
+
+            String result = service.removeItemByName(name);
+            System.out.println(result);
+            pause();
+
+            // hvis item IKKE blev fundet, så lad loopen fortsætte
+            if (result.toLowerCase().contains("not found")) {
+                continue;
+            }
+
+            // ellers er vi færdige med at fjerne, tilbage til menu
+            return;
+        }
     }
+
 
 
     private void equipItem() {
@@ -201,8 +230,7 @@ public class Menu {
             }
             showInventory();
         while (true) {
-            System.out.print("Item you want to equip: ");
-            System.out.println("Write 'exit' to quit");
+            System.out.print("Item you want to equip (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
             if (name.equalsIgnoreCase("exit")) {
@@ -232,8 +260,7 @@ public class Menu {
         }
 
         while (true) {
-            System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet): ");
-            System.out.println("\nWrite 'exit' to quit");
+            System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet, or 'exit' to go back): ");
             String slot = input.nextLine().trim();
 
             if (slot.equalsIgnoreCase("exit")) {
@@ -271,14 +298,30 @@ public class Menu {
             return;
         }
 
-        showInventory();
-        System.out.print("Consumable to use: ");
-        String name = input.nextLine();
+        while (true) {
+            showInventory();
+            System.out.print("Consumable to use (or type 'exit' to go back): ");
+            String name = input.nextLine().trim();
 
-        String result = service.useConsumable(name);
-        System.out.println(result);
-        pause();
+            if (name.equalsIgnoreCase("exit")) {
+                return;
+            }
+
+            String result = service.useConsumable(name);
+            System.out.println(result);
+            pause();
+
+            // hvis beskeden fx er "No consumable with that name" → prøv igen
+            if (result.toLowerCase().contains("not found")
+                    || result.toLowerCase().contains("no consumable")) {
+                continue;
+            }
+
+            // ellers har vi brugt noget succesfuldt → tilbage til menu
+            return;
+        }
     }
+
 
     private void searchItem() {
         System.out.print("Name to search for: ");
@@ -302,7 +345,7 @@ public class Menu {
             System.out.println("3. Filter by weight range");
             System.out.println("4. Filter by rarity");
             System.out.println("5. Back");
-            System.out.print("Choose: ");
+            System.out.print("Choose an option (1-5): ");
 
             int choice = readInt();
 
@@ -347,9 +390,10 @@ public class Menu {
                 }
 
                 default -> {
-                    System.out.println("Invalid choice.");
+                    System.out.println("Invalid choice. Please enter a number between 1 and 5.");
                     pause();
                 }
+
             }
         }
     }
@@ -366,7 +410,7 @@ public class Menu {
         System.out.println("2. Weight");
         System.out.println("3. Type");
         System.out.println("4. Rarity");
-        System.out.print("Choose: ");
+        System.out.print("Choose an option (1-4): ");
 
         int choice = readInt();
 
@@ -375,11 +419,13 @@ public class Menu {
             case 2 -> service.sortByWeight();
             case 3 -> service.sortByType();
             case 4 -> service.sortByRarity();
-            default -> System.out.println("Invalid choice.");
+            default -> {
+                System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+                pause();
+            }
         }
-
-        showInventory(); // vis resultat efter sortering
-        pause();
+            showInventory(); // vis resultat efter sortering
+            pause();
     }
 
     private void saveInvToFile() {
@@ -406,16 +452,32 @@ public class Menu {
     }
 
     public void buySlotsMenu() {
-        System.out.println("=== BUY SLOTS ===");
-        System.out.println("Unlocked: " + service.getInventory().getUnlockedSlots() + "/" + service.getInventory().getMaxSlots());
+        while (true) {
+            System.out.println("=== BUY SLOTS ===");
+            System.out.println("Unlocked: " + service.getInventory().getUnlockedSlots()
+                    + "/" + service.getInventory().getMaxSlots());
+            System.out.println("How many slots do you want to buy? (or 0 to go back)");
 
-        System.out.println("How many slots do you wanna buy?");
-        int amount = readInt();
+            int amount = readInt();
 
-        String result = service.buyInventorySlots(amount);
-        System.out.println(result);
-        pause();
+            if (amount == 0) {
+                return; // tilbage til menu
+            }
+
+            boolean success = service.buyInventorySlots(amount);
+
+            if (success) {
+                System.out.println("Slots successfully unlocked.");
+                pause();
+                return; // færdig, tilbage til menu
+            } else {
+                System.out.println("Could not buy slots. Amount must be > 0 and not exceed max slots.");
+                pause();
+                // og så kører while videre, så de kan prøve igen
+            }
+        }
     }
+
 
     // ---------- helpers ----------
 
@@ -425,7 +487,7 @@ public class Menu {
             try {
                 return Integer.parseInt(line.trim());
             } catch (NumberFormatException e) {
-                System.out.print("Please enter a valid integer: ");
+                System.out.print("Please enter a valid number: ");
             }
         }
     }

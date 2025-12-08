@@ -14,7 +14,6 @@ public class InventoryService {
 
     private final Player player;        // den aktive spiller
     private final Inventory inventory;  // genvej til spillerens inventory
-    private boolean equipmentEmpty;
 
     public InventoryService(Player player) {
         this.player = player;
@@ -44,8 +43,6 @@ public class InventoryService {
     public Item findItemByName(String name) {
         return inventory.findItemByName(name);
     }
-
-
 
     // Opretter det konkrete item (Weapon/Armour/Consumable) ud fra input fra Menu
     public String addItem(
@@ -215,21 +212,9 @@ public class InventoryService {
         return results;
     }
 
-    public String buyInventorySlots(int amount) {
-        if (amount <= 0) {
-            return "Amount must be greater than 0.";
-        }
-        boolean ok = inventory.buyInventorySlots(amount);
-
-        if (ok) {
-            System.out.println("You have unlocked " + amount + " inventory slots");
-            System.out.println(inventory.getUnlockedSlots() + "/" + inventory.getMaxSlots());
-            return "Slots successfully unlocked";
-        } else {
-            return "You can't buy more slots. Maximum slot capicity reached";
-        }
+    public boolean buyInventorySlots(int amount) {
+        return player.getInventory().buyInventorySlots(amount);
     }
-
 
 
     // filtrerer efter rarity
