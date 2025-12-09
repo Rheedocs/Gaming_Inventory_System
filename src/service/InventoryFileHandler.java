@@ -4,6 +4,7 @@ import domain.*;
 import java.io.*;
 import java.util.*;
 
+// Håndterer gemning og indlæsning af inventory til/fra tekstfil i et simpelt custom format.
 public class InventoryFileHandler {
 
     // Gemmer hele inventory-tilstanden til en tekstfil
@@ -17,7 +18,7 @@ public class InventoryFileHandler {
             writer.println("unlockedSlots=" + inventory.getUnlockedSlots());
             writer.println();
 
-            // --- items ---
+            // --- items (Weapon/Armour/Consumable) som semikolon-separerede linjer ---
             writer.println("# Items");
             for (Item item : inventory.getItems()) {
 

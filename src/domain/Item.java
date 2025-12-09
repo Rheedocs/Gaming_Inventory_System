@@ -1,5 +1,6 @@
 package domain;
 
+// Grundlæggende item i systemet. Weapon, Armour og Consumable nedarver fra denne.
 public class Item {
 
     private String name;

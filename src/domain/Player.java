@@ -1,5 +1,6 @@
 package domain;
 
+// Repræsenterer spilleren med navn, inventory og udstyr (equipment).
 public class Player {
 
     private String name;

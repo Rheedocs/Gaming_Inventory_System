@@ -1,7 +1,6 @@
 package domain;
 
-import domain.Item;
-
+// Håndterer hvad spilleren har equippet i hænder og rustnings-slots.
 public class Equipment {
 
     private Weapon mainHand;
@@ -12,16 +11,19 @@ public class Equipment {
     private Armour legs;
     private Armour feet;
 
+    // Forsøger at equippe et våben i korrekt hånd
     public boolean equipWeapon(Weapon w) {
 
         String hand = w.getHandtype();
 
+        // TwoHand fylder begge hænder og rydder offhand
         if (hand.equalsIgnoreCase("TwoHand")) {
             mainHand = w;
             offHand = null;
             return true;
         }
 
+        // OneHand prøver først mainHand, derefter OffHand
         if (hand.equalsIgnoreCase("OneHand")) {
             if (mainHand == null) {
                 mainHand = w;
@@ -34,6 +36,7 @@ public class Equipment {
             return false;
         }
 
+        // OffHand kan kun ligge i offHand
         if (hand.equalsIgnoreCase("OffHand")) {
             if (offHand == null) {
                 offHand = w;
@@ -45,6 +48,7 @@ public class Equipment {
         return false;
     }
 
+    // Sætter rustning i korrekt slot baseret på tekst (head/chest/legs/feet)
     public boolean equipArmour(Armour a) {
         String s = a.getSlot();
 
@@ -57,6 +61,7 @@ public class Equipment {
         }
     }
 
+    // Fjerner item fra valgt slot og returnerer det
     public Item unequip(String slot) {
         Item removed = null;
 
@@ -88,7 +93,6 @@ public class Equipment {
         }
         return removed; // null hvis slot ukendt eller tomt
     }
-
 
     public String getOverview() {
         return

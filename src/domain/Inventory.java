@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// Styrer spillerens inventory: vægtgrænser, slots, items, stacking og sortering.
 public class Inventory {
 
     // kapacitet for inventory
@@ -12,7 +13,7 @@ public class Inventory {
     private int maxSlots = 192;
     private int unlockedSlots = 32;
 
-    // selve listen af items
+    // selve listen af items (kun Inventory må ændre denne direkte)
     private final ArrayList<Item> slots = new ArrayList<>();
 
     public Inventory() {
@@ -67,20 +68,19 @@ public class Inventory {
 
     public boolean addItem(Item item) {
 
-        // stacking for consumables med samme navn
+        // stacking for consumables med samme navn (lægger stackSize sammen)
         if (item instanceof Consumable cNew) {
             for (Item existing : slots) {
                 if (existing instanceof Consumable cOld &&
                         cOld.getName().equalsIgnoreCase(cNew.getName())) {
 
-                    // læg stacksize sammen i samme slot
                     cOld.setStackSize(cOld.getStackSize() + cNew.getStackSize());
                     return true; // ingen ekstra slot ved stacking
                 }
             }
         }
 
-        // slot + vægt check for helt nye items
+        // tjek for slots og maxWeight for nye items
         if (slots.size() >= unlockedSlots) {
             return false;
         }
@@ -128,6 +128,7 @@ public class Inventory {
         slots.sort(Comparator.comparing(Item::getType));
     }
 
+    // Sorterer inventory efter rarity ved brug af insertion sort
     public void sortByRarity() {
         int n = slots.size();
 
@@ -136,20 +137,20 @@ public class Inventory {
             int currentRank = rarityRank(current.getRarity());
             int j = i - 1;
 
+            // flyt items med højere rarityRank opad i listen
             while (j >= 0 && rarityRank(slots.get(j).getRarity()) > currentRank) {
                 slots.set(j + 1, slots.get(j));
                 j--;
             }
 
-            // indsæt current
+            // indsæt current det rigtige sted
             slots.set(j + 1, current);
         }
     }
 
-
-
     // --- tekstlig oversigt ---
 
+    // Returnerer en teksttabel med alle items og samlet status (vægt, slots).
     public String getDetailedOverview() {
         StringBuilder sb = new StringBuilder();
 
@@ -204,6 +205,7 @@ public class Inventory {
         return true;
     }
 
+    // Hjælpemetode til at omsætte rarity til et tal til sortering
     private int rarityRank(String rarity) {
         if (rarity == null) return 0;
 

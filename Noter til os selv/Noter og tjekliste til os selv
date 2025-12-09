@@ -1,0 +1,35 @@
+Notater og tjekliste vi skriver til os selv, som vi skriver når vi koder og tester derud af.
+
+* = Fuldført/Rettet
+- = Overvejelser/Stadig igang
+
+* Rarity fejl ved ugyldig input er løst. Rarity valideres og får stort begyndelsesbogstav.
+* Andre typer valideres også (Weapon/Armour/Consumable + handType osv.).
+- Navne med stort begyndelsesbogstav er kosmetik, ikke implementeret.
+
+* Menupunkter der tidligere sendte dig tilbage for hurtigt er rettet.
+* Equip viser nu kun Weapon/Armour. Consumables kan ikke equips.
+- Flere custom exceptions er en idé til senere, ikke et krav.
+
+* Unequip viser nu item-navnet korrekt.
+* Consumable use viser både effectType og remaining stack.
+
+- Inventory viser ikke stackSize i UI-tabellen endnu. Overvej efter feedback.
+* Stacking-funktionalitet virker i logikken.
+
+- Nye filer optræder først i projektmappen efter programmet slutter
+  (IDE-ting; kan ses ved at refreshe folderen).
+
+- Overvej refactor af switch cases (fx samle equip/unequip).
+- Overvej at lade programmet indlæse en spiller automatisk. Ikke krav.
+
+* Rarity-sortering virker nu med insertion sort (algorithm requirement opfyldt).
+* Algo-sort krav fra Mikkel opfyldt via sortByRarity.
+
+- Enum for rarity og type er en forbedring til final version.
+
+* Invalid input i flere menuer er fikset med while-loops og readInt/readDouble.
+
+- Defence/attack vises ikke i inventory-overview endnu. Kan tilføjes senere.
+- effectType vises heller ikke i inventory-overview (kun når consumable bruges).
+- Indlæsning af tekstfiler er case-insensitive. Kan blive som det er.

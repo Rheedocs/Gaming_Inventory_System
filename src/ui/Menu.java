@@ -2,12 +2,16 @@ package ui;
 
 import domain.Item;
 import domain.Player;
+import domain.Armour;
+import domain.Weapon;
 import service.InventoryService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+// Konsol-baseret brugergrænseflade.
+// Viser menu, læser input og kalder InventoryService.
 public class Menu {
 
     private final Scanner input = new Scanner(System.in);
@@ -17,6 +21,7 @@ public class Menu {
 
     public void start() {
 
+        // Opretter spiller og service-lag ud fra spillerens navn
         System.out.print("Enter player name: ");
         String playerName = input.nextLine();
 
@@ -82,7 +87,6 @@ public class Menu {
         System.out.println("Menu has closed!");
     }
 
-
     // ---------- main actions ----------
 
     private void showInventory() {
@@ -101,6 +105,7 @@ public class Menu {
         System.out.print("Name: ");
         String name = input.nextLine();
 
+        // vælg type (kun gyldige domænetyper)
         String type;
         while (true) {
             System.out.print("Type (Weapon/Armour/Consumable): ");
@@ -113,6 +118,7 @@ public class Menu {
             System.out.println("Invalid type. Try again.");
         }
 
+        // vælg rarity og normaliser til stort begyndelsesbogstav
         String rarity;
         while (true) {
             System.out.print("Rarity (Common/Uncommon/Rare/Epic): ");
@@ -123,14 +129,14 @@ public class Menu {
                     rarity.equalsIgnoreCase("Rare") ||
                     rarity.equalsIgnoreCase("Epic")) {
 
-                rarity = capitalize(rarity);   // <- gør “common” til “Common”
+                rarity = capitalize(rarity);   // gør “common” til “Common”
                 break;
             }
 
             System.out.println("Invalid rarity. Try again.");
         }
 
-
+        // vægt skal være > 0
         double weight;
         while (true) {
             System.out.print("Weight (must be > 0): ");
@@ -139,7 +145,7 @@ public class Menu {
             System.out.println("Weight must be greater than 0.");
         }
 
-        // subtype-felter
+        // subtype-felter (kun relevante felter fyldes ud afhængig af type)
         Integer damage = null;
         String handType = null;
         Integer defence = null;
@@ -219,36 +225,44 @@ public class Menu {
         }
     }
 
-
-
+    // Lader spilleren vælge et item fra inventory og equippe det (kun Weapon/Armour).
     private void equipItem() {
 
-            if (service.isInventoryEmpty()) {
-                System.out.println("Inventory is empty.");
-                pause();
-                return;
-            }
-            showInventory();
+        if (service.isInventoryEmpty()) {
+            System.out.println("Inventory is empty.");
+            pause();
+            return;
+        }
+
+        showInventory();
+
         while (true) {
             System.out.print("Item you want to equip (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
             if (name.equalsIgnoreCase("exit")) {
                 return; // go back to menu
-                }
+            }
 
             Item item = service.findItemByName(name);
 
             if (item == null) {
-                System.out.println("Item does not exist.");
+                System.out.println("Item not found.");
                 continue;
             }
+
+            // Kun Weapon og Armour må equips
+            if (!(item instanceof Weapon || item instanceof Armour)) {
+                System.out.println("This item cannot be equipped.");
+                pause();
+                continue;
+            }
+
             String result = service.equip(item);
             System.out.println(result);
             pause();
             return;
         }
-
     }
 
     private void unequipItem() {
@@ -311,7 +325,7 @@ public class Menu {
             System.out.println(result);
             pause();
 
-            // hvis beskeden fx er "No consumable with that name" → prøv igen
+            // hvis beskeden fx er "not found" → prøv igen
             if (result.toLowerCase().contains("not found")
                     || result.toLowerCase().contains("no consumable")) {
                 continue;
@@ -321,7 +335,6 @@ public class Menu {
             return;
         }
     }
-
 
     private void searchItem() {
         System.out.print("Name to search for: ");
@@ -336,9 +349,11 @@ public class Menu {
         pause();
     }
 
+    // Under-menu til avanceret søgning og filtrering.
+    // Bliver i menuen indtil brugeren vælger "Back".
     private void advancedSearchMenu() {
 
-        while (true) { // forbliver i advanced search til bruger vælger back
+        while (true) {
             System.out.println("\n=== ADVANCED SEARCH ===");
             System.out.println("1. Search by name contains");
             System.out.println("2. Filter by type");
@@ -393,7 +408,6 @@ public class Menu {
                     System.out.println("Invalid choice. Please enter a number between 1 and 5.");
                     pause();
                 }
-
             }
         }
     }
@@ -424,8 +438,8 @@ public class Menu {
                 pause();
             }
         }
-            showInventory(); // vis resultat efter sortering
-            pause();
+        showInventory(); // vis resultat efter sortering
+        pause();
     }
 
     private void saveInvToFile() {
@@ -478,7 +492,6 @@ public class Menu {
         }
     }
 
-
     // ---------- helpers ----------
 
     private int readInt() {
@@ -508,6 +521,7 @@ public class Menu {
         input.nextLine();
     }
 
+    // Printer en tabel med items i samme layout som inventory overview.
     private void printResults(List<Item> items) {
         if (items.isEmpty()) {
             System.out.println("No items found.");

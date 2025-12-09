@@ -1,5 +1,6 @@
 package domain;
 
+// Repræsenterer rustning med defence-værdi og slot (Head/Chest/Legs/Feet).
 public class Armour extends Item {
 
     private int defence;

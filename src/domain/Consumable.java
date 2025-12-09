@@ -1,5 +1,6 @@
 package domain;
 
+// Repræsenterer forbrugsitems (potions mv.) med effekt og stackSize.
 public class Consumable extends Item {
 
     private String effectType;

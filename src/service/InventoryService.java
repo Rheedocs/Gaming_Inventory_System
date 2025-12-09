@@ -10,6 +10,8 @@ import domain.Weapon;
 import java.util.ArrayList;
 import java.util.List;
 
+// Service-lag mellem UI (Menu) og domain.
+// Samler logik for inventory, equipment, søgning, sortering og filhåndtering.
 public class InventoryService {
 
     private final Player player;        // den aktive spiller
@@ -59,17 +61,18 @@ public class InventoryService {
     ) {
         Item item;
 
+        // Vælg konkret subtype ud fra type og giv de ekstra felter videre
         switch (type.toLowerCase()) {
 
             case "weapon" -> {
                 Weapon w = new Weapon(name, "Weapon", rarity, weight);
-                if (damage != null) w.setDamage(damage);        // kun hvis Menu har givet værdi
+                if (damage != null) w.setDamage(damage);
                 if (handType != null) w.setHandtype(handType);
                 item = w;
             }
 
             case "armour", "armor" -> {
-                int def = (defence != null) ? defence : 0;      // fallback-standard
+                int def = (defence != null) ? defence : 0;
                 String slot = (armourSlot != null) ? armourSlot : "Chest";
                 item = new Armour(name, "Armour", rarity, weight, def, slot);
             }
@@ -81,7 +84,7 @@ public class InventoryService {
                 item = c;
             }
 
-            default -> item = new Item(name, type, rarity, weight);   // ukendt type → almindeligt item
+            default -> item = new Item(name, type, rarity, weight);   // fallback: almindeligt item
         }
 
         // addItem håndterer selv stacking, slots og vægt
@@ -101,26 +104,46 @@ public class InventoryService {
         }
     }
 
+    // Bruger et consumable. Håndterer stackSize, så kun sidste item fjerner hele objektet.
     public String useConsumable(String name) {
+
+        // find itemet i inventory
         Item item = inventory.findItemByName(name);
 
         if (item == null) {
             return "Could not use consumable. Item not found.";
         }
 
+        // tjek om det faktisk er et consumable
         if (!item.getType().equalsIgnoreCase("Consumable")) {
             return "Item is not a consumable.";
         }
 
         Consumable c = (Consumable) item;
-        inventory.removeItem(item); // 1 brug = 1 item fjernes fra inventory
+        int currentStack = c.getStackSize();
 
-        String effect = c.getEffectType();
-        if (effect != null && !effect.isBlank()) {
-            return "Used consumable: " + c.getName() + " (" + effect + ")";
+        // hvis der er flere end 1 i stacken → reducer stackSize
+        if (currentStack > 1) {
+            c.setStackSize(currentStack - 1);
         } else {
-            return "Used consumable: " + c.getName();
+            // sidste item i stacken → fjern helt fra inventory
+            inventory.removeItem(c);
         }
+
+        // feedback til brugeren
+        String effect = c.getEffectType();
+        String message = "Used consumable: " + c.getName();
+
+        if (effect != null && !effect.isBlank()) {
+            message += " (" + effect + ")";
+        }
+
+        // hvis der stadig er nogen tilbage i stack
+        if (c.getStackSize() > 0) {
+            message += " | Remaining in stack: " + c.getStackSize();
+        }
+
+        return message;
     }
 
     // sender equip-ønske videre til Player.Equipment
@@ -212,11 +235,6 @@ public class InventoryService {
         return results;
     }
 
-    public boolean buyInventorySlots(int amount) {
-        return player.getInventory().buyInventorySlots(amount);
-    }
-
-
     // filtrerer efter rarity
     public List<Item> filterByRarity(String rarity) {
         List<Item> results = new ArrayList<>();
@@ -228,6 +246,11 @@ public class InventoryService {
         }
         return results;
     }
+
+    public boolean buyInventorySlots(int amount) {
+        return player.getInventory().buyInventorySlots(amount);
+    }
+
     public boolean isEquipmentEmpty() {
         return player.getEquipment().isEmpty();
     }

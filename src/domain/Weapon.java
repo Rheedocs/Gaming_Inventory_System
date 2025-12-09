@@ -1,5 +1,6 @@
 package domain;
 
+// Repræsenterer et våben med skade og hvilken hånd-type (OneHand/OffHand/TwoHand).
 public class Weapon extends Item {
 
     private int damage;
