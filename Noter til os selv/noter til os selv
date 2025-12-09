@@ -1,7 +1,7 @@
-Notater vi skriver til os selv som vi skriver og tester.
+Notater vi skriver til os selv, som vi skriver og tester.
 
-* = Fuldført/rettet
-- = Stadig igang
+* = Fuldført/Rettet
+- = Overvejelser/Stadig igang
 
 * Rarity skriver ikke ugyldig hvis du indtaster andet end angivet rarity, rarities skal også lige have store bogstaver.
 * Skal nok også tjekke om det er det samme med de andre ting.
@@ -22,3 +22,4 @@ inventory
 - Enum for rarity og type?
 * nogle actions sender dig tilbage i menuen hvis du giver forkert input
 - defence og attack values er ikke vist nogle steder heller, nok mere info der skal sættes i programmet
+- indlæsning af tekstfiler er ikke case-sensitive
