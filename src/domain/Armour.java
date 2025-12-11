@@ -4,10 +4,10 @@ package domain;
 public class Armour extends Item {
 
     private int defence;
-    private String slot; // fx Head, Chest, Legs, Feet
+    private ArmourSlot slot; // fx Head, Chest, Legs, Feet
 
-    public Armour(String name, String type, String rarity, double weight, int defence, String slot) {
-        super(name, type, rarity, weight);
+    public Armour(String name, Rarity rarity, double weight, int defence, ArmourSlot slot) {
+        super(name, ItemType.ARMOUR, rarity, weight);
         this.defence = defence;
         this.slot = slot;
     }
@@ -20,11 +20,11 @@ public class Armour extends Item {
         this.defence = defence;
     }
 
-    public String getSlot() {
+    public ArmourSlot getSlot() {
         return slot;
     }
 
-    public void setSlot(String slot) {
+    public void setSlot(ArmourSlot slot) {
         this.slot = slot;
     }
 }

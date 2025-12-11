@@ -6,8 +6,9 @@ public class Consumable extends Item {
     private String effectType;
     private int stackSize;
 
-    public Consumable(String name, String type, String rarity, double weight) {
-        super(name, type, rarity, weight);
+    public Consumable(String name, Rarity rarity, double weight, int stackSize) {
+        super(name, ItemType.CONSUMABLE, rarity, weight);
+        this.stackSize = stackSize;
     }
 
     public String getEffectType() {

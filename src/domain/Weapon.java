@@ -4,10 +4,12 @@ package domain;
 public class Weapon extends Item {
 
     private int damage;
-    private String handtype; // OneHand, OffHand, TwoHand
+    private HandType handType; // OneHand, OffHand, TwoHand
 
-    public Weapon(String name, String type, String rarity, double weight) {
-        super(name, type, rarity, weight);
+    public Weapon(String name, Rarity rarity, double weight, int damage, HandType handType) {
+        super(name, ItemType.WEAPON, rarity, weight);
+        this.damage = damage;
+        this.handType = handType;
     }
 
     public int getDamage() {
@@ -18,11 +20,11 @@ public class Weapon extends Item {
         this.damage = damage;
     }
 
-    public String getHandtype() {
-        return handtype;
+    public HandType getHandType() {
+        return handType;
     }
 
-    public void setHandtype(String handtype) {
-        this.handtype = handtype;
+    public void setHandType(HandType handType) {
+        this.handType = handType;
     }
 }

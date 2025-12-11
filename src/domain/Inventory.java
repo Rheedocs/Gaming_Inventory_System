@@ -1,5 +1,8 @@
 package domain;
 
+
+import exceptions.NegativeValues;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,8 +34,7 @@ public class Inventory {
         return maxWeight;
     }
 
-    public void setMaxWeight(double maxWeight) {
-        this.maxWeight = maxWeight;
+    public void setMaxWeight(double maxWeight) throws NegativeValues {this.maxWeight = maxWeight;
     }
 
     public int getMaxSlots() {
@@ -192,18 +194,30 @@ public class Inventory {
     }
 
     public boolean buyInventorySlots(int amount) {
-        if (amount <= 0) {
-            System.out.println("Amount must be greater than 0.");
-            return false;
-        }
 
-        if (unlockedSlots + amount > maxSlots) {
-            return false;
-        }
+        boolean b1 = false,b2 = false;
 
-        unlockedSlots += amount;
-        return true;
+
+        try {
+            if (amount <= 0) {
+                b1 = true;
+                throw new NegativeValues("Amount cannot be zero or negative");
+            }
+
+            if (unlockedSlots + amount > maxSlots) {
+                b2 = true;
+                return false;
+            }
+
+            unlockedSlots += amount;
+            return true;
+
+        } catch (NegativeValues e) {
+            System.err.println("You can't add negative slots!");
+        }
+        return false;
     }
+
 
     // Hjælpemetode til at omsætte rarity til et tal til sortering
     private int rarityRank(String rarity) {

@@ -4,7 +4,10 @@ import domain.Item;
 import domain.Player;
 import domain.Armour;
 import domain.Weapon;
+import exceptions.MaxWeightReached;
+import exceptions.NegativeValues;
 import service.InventoryService;
+import domain.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,14 +139,29 @@ public class Menu {
             System.out.println("Invalid rarity. Try again.");
         }
 
-        // vægt skal være > 0
+        Inventory inventory = new Inventory();
         double weight;
         while (true) {
             System.out.print("Weight (must be > 0): ");
             weight = readDouble();
-            if (weight > 0) break;
-            System.out.println("Weight must be greater than 0.");
+            try {
+                if (weight <= 0) {
+                    throw new NegativeValues("Weight must be greater then 0");
+                }
+
+                double sum = weight + inventory.getTotalWeight();
+                if (sum > inventory.getMaxWeight()){
+                    throw new MaxWeightReached("Cannot add item. Player is too heavy");
+                }
+                if (weight > 0) break;
+            } catch (NegativeValues e) {
+                System.out.println("Error: " + e.getMessage());
+            } catch (MaxWeightReached e) {
+                System.out.println("Error" + e.getMessage());
+            }
+
         }
+
 
         // subtype-felter (kun relevante felter fyldes ud afhængig af type)
         Integer damage = null;
@@ -475,7 +493,7 @@ public class Menu {
             int amount = readInt();
 
             if (amount == 0) {
-                return; // tilbage til menu
+                return; //  tilbage til menu
             }
 
             boolean success = service.buyInventorySlots(amount);
@@ -484,11 +502,13 @@ public class Menu {
                 System.out.println("Slots successfully unlocked.");
                 pause();
                 return; // færdig, tilbage til menu
-            } else {
+            }
+            if (!success) {
                 System.out.println("Could not buy slots. Amount must be > 0 and not exceed max slots.");
                 pause();
-                // og så kører while videre, så de kan prøve igen
             }
+
+            // og så kører while videre, så de kan prøve igen
         }
     }
 

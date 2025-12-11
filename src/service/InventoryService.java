@@ -6,6 +6,8 @@ import domain.Item;
 import domain.Armour;
 import domain.Consumable;
 import domain.Weapon;
+import db.ItemRepository;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,9 @@ public class InventoryService {
 
     private final Player player;        // den aktive spiller
     private final Inventory inventory;  // genvej til spillerens inventory
+
+    private final ItemRepository repo = new ItemRepository();
+
 
     public InventoryService(Player player) {
         this.player = player;
@@ -253,5 +258,23 @@ public class InventoryService {
 
     public boolean isEquipmentEmpty() {
         return player.getEquipment().isEmpty();
+    }
+
+    // --- Database integration (simple) ---
+
+    public void saveInventoryToDb() {
+        for (Item item : inventory.getItems()) {
+            repo.saveItem(item);
+        }
+        System.out.println("Inventory saved to database.");
+    }
+
+    public void loadInventoryFromDb() {
+        var itemsFromDb = repo.loadAllItems();
+        inventory.clearItems();
+        for (Item item : itemsFromDb) {
+            inventory.addItem(item);
+        }
+        System.out.println("Inventory loaded from database.");
     }
 }

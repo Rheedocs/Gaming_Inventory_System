@@ -33,3 +33,6 @@ Notater og tjekliste vi skriver til os selv, som vi skriver når vi koder og tes
 - Defence/attack vises ikke i inventory-overview endnu. Kan tilføjes senere.
 - effectType vises heller ikke i inventory-overview (kun når consumable bruges).
 - Indlæsning af tekstfiler er case-insensitive. Kan blive som det er.
+
+- Måske lav programmet til et executable program, så det kan køres uden for inteliJ
+- Add item tjekker ikke max vægten

@@ -4,11 +4,11 @@ package domain;
 public class Item {
 
     private String name;
-    private String type;
-    private String rarity;
+    private ItemType type;
+    private Rarity rarity;
     private double weight;
 
-    public Item(String name, String type, String rarity, double weight) {
+    public Item(String name, ItemType type, Rarity rarity, double weight) {
         this.name = name;
         this.type = type;
         this.rarity = rarity;
