@@ -1,291 +1,287 @@
-
+Mikkel - læres
+OOP evaluering af koden
 
 Her er lidt feedback og lidt hints til hvordan i kan inkorporere temaerne.  I behøver ikke have alt med –
 tag det der giver mening og resten kan måske anvendes til eksamenslæsning – vi ses torsdag
 
-
-
-Mikkel
-
-
-OOP evaluering af koden
-
 Overordnet synes jeg, det er et rigtig flot førsteprojekt for 1. semester 😊
+-----------------------------------------------------------------------------------------------------------------------
+Stærke sider:
+-----------------------------------------------------------------------------------------------------------------------
+    I har tydelige lag:
+        -domain: Player, Inventory, Item, Weapon, Armour, Consumable, Equipment
+        -service: InventoryService, InventoryFileHandler
+        -ui: Menu
+        -exceptions: NegativeValues, MaxWeightReached, ItemNotFound
+    God brug af OOP:
+        -Arv: Weapon, Armour og Consumable nedarver fra Item
+        -Komposition: Player har Inventory og Equipment
+        -Encapsulation:
+            -Felter er private
+            -I bruger getters og setters fint
+            -Inventory returnerer en unmodifiableList i getItems, så UI ikke kan ændre på slots direkte
+    God separering af ansvar:
+        -Inventory håndterer vægt, slots, stacking og sortering
+        -Equipment håndterer hvad der er equippet i hænder og rustningsslots
+        -InventoryFileHandler tager sig af filformat og I/O
+        -Menu står for al brugerinteraktion og bruger InventoryService som mellemled
+    Fejlhåndtering:
+        -Menu har egne metoder til at læse tal med try catch og giver pæn fejlbesked ved forkert input
+        -InventoryFileHandler bruger try with resources ved filskrivning og håndterer exceptions
 
-Stærke sider
+-----------------------------------------------------------------------------------------------------------------------
+Mulige forbedringer (best practice):
+-----------------------------------------------------------------------------------------------------------------------
+    Magic strings:
+        -type, rarity, slot, handtype er strings overalt
+        -I kan nemt staveforkerte værdier, fx "weapon" vs "Weapon"
+        Hint:
+            -Overvej at samle dem som konstante værdier et sted
+            -Eller på sigt bruge enums til type, rarity, slot, handtype
+    Ansvarsfordeling og udskrivning:
+        -Nogle domain klasser skriver direkte til System.out, fx Inventory.buyInventorySlots
+        -Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
+         hvad der skal udskrives
+    Lange metoder i Menu:
+        -Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
+        -Hint:
+            -Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu
+    Brug af egne exceptions:
+        -I har lavet NegativeValues, MaxWeightReached og ItemNotFound, men de bliver endnu ikke brugt i
+         domain eller service
+        -Der ligger en oplagt mulighed for at vise Tema 9 og 10 meget tydeligt ved at integrere dem i
+         Inventory og InventoryService
 
-    I har tydelige lag
-        domain: Player, Inventory, Item, Weapon, Armour, Consumable, Equipment
-        service: InventoryService, InventoryFileHandler
-        ui: Menu
-        exceptions: NegativeValues, MaxWeightReached, ItemNotFound
-    God brug af OOP
-        Arv: Weapon, Armour og Consumable nedarver fra Item
-        Komposition: Player har Inventory og Equipment
-        Encapsulation
-            Felter er private
-            I bruger getters og setters fint
-            Inventory returnerer en unmodifiableList i getItems, så UI ikke kan ændre på slots direkte
-    God separering af ansvar
-        Inventory håndterer vægt, slots, stacking og sortering
-        Equipment håndterer hvad der er equippet i hænder og rustningsslots
-        InventoryFileHandler tager sig af filformat og I/O
-        Menu står for al brugerinteraktion og bruger InventoryService som mellemled
-    Fejlhåndtering
-        Menu har egne metoder til at læse tal med try catch og giver pæn fejlbesked ved forkert input
-        InventoryFileHandler bruger try with resources ved filskrivning og håndterer exceptions
+Nedenfor kommer forslag til, hvad de kan tilføje eller fremhæve for hvert tema:
 
-Mulige forbedringer (best practice)
-
-    Magic strings
-        type, rarity, slot, handtype er strings overalt
-        I kan nemt staveforkerte værdier, fx "weapon" vs "Weapon"
-        Hint
-            Overvej at samle dem som konstante værdier et sted
-            Eller på sigt bruge enums til type, rarity, slot, handtype
-    Ansvarsfordeling og udskrivning
-        Nogle domain klasser skriver direkte til System.out, fx Inventory.buyInventorySlots
-        Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
-        hvad der skal udskrives
-    Lange metoder i Menu
-        Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
-        Hint
-            Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu
-    Brug af egne exceptions
-        I har lavet NegativeValues, MaxWeightReached og ItemNotFound, men de bliver endnu ikke brugt i
-        domain eller service
-        Der ligger en oplagt mulighed for at vise Tema 9 og 10 meget tydeligt ved at integrere dem i
-        Inventory og InventoryService
-
-Nedenfor kommer forslag til, hvad de kan tilføje eller fremhæve for hvert tema
-
-Tema 1 grundlæggende programmeringsprincipper
-
-I har allerede
-
-    Variabler og datatyper i alle klasser
-        String name, String rarity, double weight, int damage, int defence, int stackSize
+-----------------------------------------------------------------------------------------------------------------------
+Tema 1 grundlæggende programmeringsprincipper:
+-----------------------------------------------------------------------------------------------------------------------
+I har allerede:
+    Variabler og datatyper i alle klasser:
+    -String name, String rarity, double weight, int damage, int defence, int stackSize
     Operatorer i beregninger af vægt, slots mv
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser og vinkler:
 
-Mulige tilføjelser og vinkler
+    Variabler og datatyper:
+        -Lav et sted, hvor I bevidst sammenligner forskellige datatyper
+            -fx totalWeight som double vs et heltalsantal af items
+        -Overvej at tilføje en simpel price variabel til Item eller Weapon for at kunne vise int, double og måske
+         cast mellem dem
 
-    Variabler og datatyper
-        Lav et sted, hvor I bevidst sammenligner forskellige datatyper
-            fx totalWeight som double vs et heltalsantal af items
-        Overvej at tilføje en simpel price variabel til Item eller Weapon for at kunne vise int, double og måske
-        cast mellem dem
-    Tildeling og operatorer
-        Gør en beregning lidt mere synlig, fx
-            totalWeight += item.getWeight
-            unlockedSlots += amount
-        I kan lave en simpel metode, der beregner samlet damage eller samlet defence og bruger +, -, * i udregningen
-    Simple tests af programmet
-        Lav en lille testmetode eller en separat testklasse, hvor I
-            Opretter et par Items
-            Kalder en metode
-            Udskriver både forventet og faktisk resultat
-        Hint til eksamen
-            Vis at I kan “teste” ved at køre programmet med kendte værdier og argumentere for, at output stemmer
-            med forventningen
+    Tildeling og operatorer:
+        Gør en beregning lidt mere synlig, fx:
+            -totalWeight += item.getWeight
+            -unlockedSlots += amount
+        - I kan lave en simpel metode, der beregner samlet damage eller samlet defence og bruger +, -, * i udregningen
 
+    Simple tests af programmet:
+        Lav en lille testmetode eller en separat testklasse, hvor I:
+            -Opretter et par Items
+            -Kalder en metode
+            -Udskriver både forventet og faktisk resultat
+        Hint til eksamen:
+            -Vis at I kan “teste” ved at køre programmet med kendte værdier og argumentere for, at output stemmer
+             med forventningen
 
+-----------------------------------------------------------------------------------------------------------------------
 Tema 2 kontrolstrukturer i Java
+-----------------------------------------------------------------------------------------------------------------------
+I har allerede:
+    -if else flere steder, fx i Inventory, Equipment og Menu
+    -switch i Menu til valg af menupunkt
+    -Løkker i Inventory (gennemløb af items) og i Menu
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-I har allerede
+    If else og switch:
+        -Lav et eksempel, hvor det er oplagt at vælge switch frem for flere if else, fx på item type eller rarity
+        -I kan også vise begge dele i koden samme sted og selv vælge den mest læsbare løsning
 
-    if else flere steder, fx i Inventory, Equipment og Menu
-    switch i Menu til valg af menupunkt
-    Løkker i Inventory (gennemløb af items) og i Menu
+    Logiske operatorer:
+        Tilføj et par steder med && og ||:
+            -fx når I tjekker om et item kan tilføjes
+                -både vægtgrænse og slots skal være i orden
+                -eller: hvis enten inventory er tomt eller equipment er tomt, gør noget særligt
 
-Mulige tilføjelser
-
-    If else og switch
-        Lav et eksempel, hvor det er oplagt at vælge switch frem for flere if else, fx på item type eller rarity
-        I kan også vise begge dele i koden samme sted og selv vælge den mest læsbare løsning
-    Logiske operatorer
-        Tilføj et par steder med && og ||
-            fx når I tjekker om et item kan tilføjes
-                både vægtgrænse og slots skal være i orden
-                eller: hvis enten inventory er tomt eller equipment er tomt, gør noget særligt
-    Løkker
+    Løkker:
         I bruger allerede for loops og for each
-        For at gøre det meget eksamensvenligt kan I
-            Tilføje et eksempel på en while løkke i Menu, fx til at blive ved med at spørge indtil gyldigt input
-            Eventuelt en do while et sted, hvor man altid vil spørge mindst én gang
-        Vis tydeligt i en kommentar, hvad stopbetingelsen er (fast antal iterations vs afhængig af brugerinput
-        eller liste størrelse)
+        -For at gøre det meget eksamensvenligt kan I:
+            -Tilføje et eksempel på en while løkke i Menu, fx til at blive ved med at spørge indtil gyldigt input
+            -Eventuelt en do while et sted, hvor man altid vil spørge mindst én gang
+        -Vis tydeligt i en kommentar, hvad stopbetingelsen er (fast antal iterations vs afhængig af brugerinput
+         eller liste størrelse)
 
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 3 funktioner og metoder
-
+-----------------------------------------------------------------------------------------------------------------------
 I har i forvejen mange fine metoder, så her handler det mest om at gøre dem nemme at forklare
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser og pointer:
 
-Mulige tilføjelser og pointer
+    Definering og kald af metoder:
+        Sørg for at der er et par helt små, overskuelige hjælpe metoder, fx:
+            -en metode der kun tæller, hvor mange våben der er i inventory
+            -en metode der kun printer en pæn overskrift
 
-    Definering og kald af metoder
-        Sørg for at der er et par helt små, overskuelige hjælpe metoder, fx
-            en metode der kun tæller, hvor mange våben der er i inventory
-            en metode der kun printer en pæn overskrift
-    Parametre og returværdier
-        Lav mindst én metode i Inventory eller InventoryService der
-            tager et simpelt parameter (fx rarity som String)
-            returnerer en samling eller et tal (fx antal items med den rarity)
+    Parametre og returværdier:
+        Lav mindst én metode i Inventory eller InventoryService der:
+            -tager et simpelt parameter (fx rarity som String)
+            -returnerer en samling eller et tal (fx antal items med den rarity)
         I kan bruge den metode både til logik og til at vise, hvordan data “rejser” gennem systemet
+
     Scope og evt overloading
-        Gør jer bevidste om forskellen på lokale variabler i metoder og felter i klassen
-            Kommenter det et sted
+        Gør jer bevidste om forskellen på lokale variabler i metoder og felter i klassen:
+            -Kommenter det et sted
         Hvis I vil ramme overloading, kan I lave to konstruktører eller to metoder med samme navn men
         forskellige parametre
 
-
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 4 datastrukturer og deres anvendelse
-
-I bruger allerede
-
-    ArrayList (List<Item>) i Inventory
-    Collections.unmodifiableList til at beskytte data
-
-
-
+-----------------------------------------------------------------------------------------------------------------------
+I bruger allerede:
+    -ArrayList (List<Item>) i Inventory
+    -Collections.unmodifiableList til at beskytte data
 For at få arrays og HashMap tydeligt med kan I tilføje noget meget lille og afgrænset
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-Mulige tilføjelser
+    Arrays:
+        -Lav et simpelt array et sted, der ikke styrer hele systemet:
+            -fx et int array med nogle testvægt værdier
+            -eller et String array med standard navne på starter items
+        -Lav en lille søgemetode der gennemløber arrayet og finder en værdi
 
-    Arrays
-        Lav et simpelt array et sted, der ikke styrer hele systemet
-            fx et int array med nogle testvægt værdier
-            eller et String array med standard navne på starter items
-        Lav en lille søgemetode der gennemløber arrayet og finder en værdi
-    HashMap
-        Opret en HashMap, der knytter en nøgle til noget i inventory
-            fx Map<String, Integer> der tæller, hvor mange items der er af hver rarity
-            eller Map<String, Item> der giver hurtig lookup på navn
-        Brug map’et et enkelt sted i Menu eller InventoryService
-            fx til at vise antal pr. rarity
-    Styrker og svagheder
-        Skriv et par kommentarer i koden om
-            at arrays har fast størrelse
-            at ArrayList er nem at tilføje og fjerne fra
-            at HashMap er hurtig til opslag på nøgle, men ikke har rækkefølge
+    HashMap:
+        -Opret en HashMap, der knytter en nøgle til noget i inventory:
+            -fx Map<String, Integer> der tæller, hvor mange items der er af hver rarity
+            -eller Map<String, Item> der giver hurtig lookup på navn
+        -Brug map’et et enkelt sted i Menu eller InventoryService:
+            -fx til at vise antal pr. rarity
 
+    Styrker og svagheder:
+        Skriv et par kommentarer i koden om:
+            -at arrays har fast størrelse
+            -at ArrayList er nem at tilføje og fjerne fra
+            -at HashMap er hurtig til opslag på nøgle, men ikke har rækkefølge
 
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 5 sortering og algoritmer
-
+-----------------------------------------------------------------------------------------------------------------------
 I bruger sandsynligvis allerede Collections.sort og Comparator i Inventory til sortering af items
+For at ramme temaet ekstra klart kan I:
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-For at ramme temaet ekstra klart kan I
+    En simpel egen sorteringsalgoritme:
+        -Lav en meget lille metode der sorterer et array af tal eller et array af navne med en enkel algoritme
+            -fx Bubble Sort
 
-Mulige tilføjelser
-
-    En simpel egen sorteringsalgoritme
-        Lav en meget lille metode der sorterer et array af tal eller et array af navne med en enkel algoritme
-            fx Bubble Sort
-
-
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 6 objektorienteret programmering
-
+-----------------------------------------------------------------------------------------------------------------------
 Her står I stærkt allerede, men I kan skærpe forklaringen
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser og pointer:
 
-Mulige tilføjelser og pointer
+    Klasser, objekter og konstruktører:
+        -Player, Inventory, Equipment, Item og underklasserne er gode eksempler
+        -Overvej at lave en ekstra simpel klasse hvis I vil have et helt “rent” eksempel
 
-    Klasser, objekter og konstruktører
-        Player, Inventory, Equipment, Item og underklasserne er gode eksempler
-        Overvej at lave en ekstra simpel klasse hvis I vil have et helt “rent” eksempel
-    Indkapsling
-        Tjek at alle felter er private og kun tilgås via getters og setters
-        Undgå at andre klasser end Inventory kan ændre direkte i slots listen
-    this reference
-        Vis et konkret eksempel i en setter eller i en konstruktør, hvor parameter og felt har samme navn
-            og I bruger this til at skelne
+    Indkapsling:
+        -Tjek at alle felter er private og kun tilgås via getters og setters
+        -Undgå at andre klasser end Inventory kan ændre direkte i slots listen
 
+    this reference:
+        -Vis et konkret eksempel i en setter eller i en konstruktør, hvor parameter og felt har samme navn
+            -og I bruger this til at skelne
 
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 7 arv og polymorfi
-
+-----------------------------------------------------------------------------------------------------------------------
 I har allerede
+    -Item som superklasse og Weapon, Armour, Consumable som underklasser
+    -Inventory der arbejder med List<Item> og dermed bruger polymorfi i praksis
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-    Item som superklasse og Weapon, Armour, Consumable som underklasser
-    Inventory der arbejder med List<Item> og dermed bruger polymorfi i praksis
+    Metodeoverriding:
+        -Overvej at override toString i Weapon, Armour og Consumable, så de viser lidt forskellig information
+        -Det giver et klart eksempel til eksamen
 
-Mulige tilføjelser
+    Synlig polymorfi:
+        -Lav en metode, der tager en Item og gør noget, uanset om det er Weapon, Armour eller Consumable:
+            -fx en metode der beskriver itemmet i tekstform
+        -I kan også lave en lille liste med forskellige underklasser og iterere hen over dem og kalde samme metode
+         på alle
 
-    Metodeoverriding
-        Overvej at override toString i Weapon, Armour og Consumable, så de viser lidt forskellig information
-        Det giver et klart eksempel til eksamen
-    Synlig polymorfi
-        Lav en metode, der tager en Item og gør noget, uanset om det er Weapon, Armour eller Consumable
-            fx en metode der beskriver itemmet i tekstform
-        I kan også lave en lille liste med forskellige underklasser og iterere hen over dem og kalde samme metode
-        på alle
-
-
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 8 designmønstre og abstraktion
-
+-----------------------------------------------------------------------------------------------------------------------
 Her har I allerede noget, der minder om simple mønstre
+    -InventoryService som mellemled mellem UI og domain
+    -InventoryFileHandler som en dedikeret “filhåndteringsklasse” (DAO lignende)
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-    InventoryService som mellemled mellem UI og domain
-    InventoryFileHandler som en dedikeret “filhåndteringsklasse” (DAO lignende)
+    Abstrakt klasse:
+        -Overvej om Item skal være abstrakt, hvis I aldrig bruger “rene” Item objekter
+        -I kunne også forestille jer en abstrakt klasse for “EquipmentItem”, som Weapon og Armour arver fra
 
-Mulige tilføjelser
-
-    Abstrakt klasse
-        Overvej om Item skal være abstrakt, hvis I aldrig bruger “rene” Item objekter
-        I kunne også forestille jer en abstrakt klasse for “EquipmentItem”, som Weapon og Armour arver fra
-    Mini factory idé
-        I InventoryFileHandler skaber I allerede forskellige objekter afhængigt af type i filen
-            det kan I bruge som eksempel på en “factory ide”
-        I kan eventuelt samle objekt oprettelse i en separat metode, der baseret på type beslutter, hvilken underklasse
+    Mini factory idé:
+        -I InventoryFileHandler skaber I allerede forskellige objekter afhængigt af type i filen:
+            -det kan I bruge som eksempel på en “factory ide”
+        -I kan eventuelt samle objekt oprettelse i en separat metode, der baseret på type beslutter, hvilken underklasse
         der skal laves
-    Abstraktion
-        Vis et sted, hvor I kun arbejder mod Item, Inventory eller InventoryService uden at kende alle detaljer indeni
 
+    Abstraktion:
+        -Vis et sted, hvor I kun arbejder mod Item, Inventory eller InventoryService uden at kende alle detaljer indeni
 
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 9 fejlhåndtering og robust kodning
+-----------------------------------------------------------------------------------------------------------------------
+I har allerede:
+    -try catch i Menu ved input
+    -try with resources og exception håndtering i InventoryFileHandler
+    -Egne exceptions NegativeValues, MaxWeightReached, ItemNotFound, men de er ikke i brug endnu
+-----------------------------------------------------------------------------------------------------------------------
+Mulige tilføjelser:
 
-I har allerede
+    Brug egne exceptions i domain:
+        -Kast NegativeValues hvis nogen prøver at sætte negativ vægt, skade, defence eller stackSize
+        -Kast MaxWeightReached når et item ikke kan tilføjes pga vægtgrænse
+        -Kast ItemNotFound når der forsøges at fjerne eller bruge et item, der ikke findes
 
-    try catch i Menu ved input
-    try with resources og exception håndtering i InventoryFileHandler
-    Egne exceptions NegativeValues, MaxWeightReached, ItemNotFound, men de er ikke i brug endnu
-
-Mulige tilføjelser
-
-    Brug egne exceptions i domain
-        Kast NegativeValues hvis nogen prøver at sætte negativ vægt, skade, defence eller stackSize
-        Kast MaxWeightReached når et item ikke kan tilføjes pga vægtgrænse
-        Kast ItemNotFound når der forsøges at fjerne eller bruge et item, der ikke findes
     Håndtering i service og UI
-        Fang disse exceptions i InventoryService eller Menu
-        Oversæt dem til pæne fejlbeskeder til brugeren i stedet for at lade programmet crashe
+        -Fang disse exceptions i InventoryService eller Menu
+        -Oversæt dem til pæne fejlbeskeder til brugeren i stedet for at lade programmet crashe
+
     Eksempler på typiske fejl
-        Tal om hvordan I undgår NullPointerException
-            fx ved at tjekke for null i Equipment før udskrivning
-        Tal om hvordan I undgår ArrayIndexOutOfBoundsException
-            fx hvis I laver arrays til Tema 4 og 5
+        -Tal om hvordan I undgår NullPointerException:
+            -fx ved at tjekke for null i Equipment før udskrivning
+        -Tal om hvordan I undgår ArrayIndexOutOfBoundsException:
+            -fx hvis I laver arrays til Tema 4 og 5
 
-
-
+-----------------------------------------------------------------------------------------------------------------------
 Tema 10 OOP og fejlhåndtering i praksis
-
+-----------------------------------------------------------------------------------------------------------------------
 Her kan I med fordel vælge ét konkret flow i jeres program og gøre det til “eksamenseksemplet”
+-----------------------------------------------------------------------------------------------------------------------
+Forslag til fokusområde:
 
-Forslag til fokusområde
+    Et sammenhængende eksempel:
+        -Vælg fx “tilføj item til inventory” eller “brug consumable”
+        -Vis:
+            -hvilke klasser der er involveret (Menu, InventoryService, Inventory, Item og evt exceptions)
+            -hvordan ansvaret er fordelt imellem dem
 
-    Et sammenhængende eksempel
-        Vælg fx “tilføj item til inventory” eller “brug consumable”
-        Vis
-            hvilke klasser der er involveret (Menu, InventoryService, Inventory, Item og evt exceptions)
-            hvordan ansvaret er fordelt imellem dem
-    Fejlhåndtering inde i metoder
-        Læg tjek ind i domain klasserne, fx i addItem eller i metoder der ændrer stackSize
-        Reager på ugyldige værdier ved at
-            kaste en exception
-            eller returnere en tydelig statusværdi, som Menu mapper til en fejlbesked
-    Robusthed
-        Sørg for, at fejl i filindlæsning, forkert input eller overskredet vægtgrænse ikke crasher programmet
-        I stedet skal brugeren få en forståelig besked og kunne prøve igen
+    Fejlhåndtering inde i metoder:
+        -Læg tjek ind i domain klasserne, fx i addItem eller i metoder der ændrer stackSize
+        -Reager på ugyldige værdier ved at:
+            -kaste en exception
+            -eller returnere en tydelig statusværdi, som Menu mapper til en fejlbesked
+
+    Robusthed:
+        -Sørg for, at fejl i filindlæsning, forkert input eller overskredet vægtgrænse ikke crasher programmet
+        -I stedet skal brugeren få en forståelig besked og kunne prøve igen
