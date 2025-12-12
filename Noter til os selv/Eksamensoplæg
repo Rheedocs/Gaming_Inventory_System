@@ -63,14 +63,19 @@ Held og lykke med udviklingen af Legend of CodeCraft domain System.
 
 Input fra Mikkel (skrevet ned som han siger det):
 
+
+flere try/catch, f.eks.:
 rigtig input
 outofbounds
 filenotfound
 
-serviceklasse eller managerclass
+
+vi skal have serviceklasse eller managerclass
 imellem main og inventory
 
+skal følge
 3 lags model (gui->lager->dal)
 
+Huske at
 try catch er logik, altid skal udanset grænseflade
-kun I/O i main
+kun have input og output i main
