@@ -1,5 +1,8 @@
 package domain;
 
+import domain.enums.ItemType;
+import domain.enums.Rarity;
+
 // Repræsenterer forbrugsitems (potions mv.) med effekt og stackSize.
 public class Consumable extends Item {
 

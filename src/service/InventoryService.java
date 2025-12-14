@@ -1,6 +1,10 @@
 package service;
 
 import domain.*;
+import domain.enums.ArmourSlot;
+import domain.enums.HandType;
+import domain.enums.ItemType;
+import domain.enums.Rarity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +29,12 @@ public class InventoryService {
         return inventory;
     }
 
-    public String getInventoryOverview() {
-        return inventory.getDetailedOverview();
-    }
-
     public boolean isInventoryEmpty() {
         return inventory.isEmpty();
+    }
+
+    public boolean isEquipmentEmpty() {
+        return player.getEquipment().isEmpty();
     }
 
     public List<Item> getItems() {
@@ -103,7 +107,7 @@ public class InventoryService {
     }
 
     // Bruger et consumable og håndterer stack-logik.
-// Tjekker med instanceof for at sikre korrekt type før cast.
+    // Tjekker med instanceof for at sikre korrekt type før cast.
     public String useConsumable(String name) {
 
         Item item = inventory.findItemByName(name);
@@ -171,16 +175,24 @@ public class InventoryService {
 
     // Unequipper et item og lægger det tilbage i inventory.
     // Flytter altså item fra Equipment -> Inventory.
+    // VIGTIGT: hvis inventory ikke kan tage imod (full/weight), så ruller vi tilbage.
     public String unequip(String slot) {
 
         Item removed = player.getEquipment().unequip(slot);
 
-        if (removed != null) {
-            inventory.addItem(removed);
-            return "Unequipped " + removed.getName() + " from " + slot;
+        if (removed == null) {
+            return "Nothing equipped in " + slot + ".";
         }
 
-        return "Nothing equipped in " + slot + ".";
+        boolean added = inventory.addItem(removed);
+
+        if (!added) {
+            // rollback så vi ikke mister items
+            player.getEquipment().restoreToSlot(slot, removed);
+            return "Cannot unequip " + removed.getName() + ". Inventory is full or weight limit exceeded.";
+        }
+
+        return "Unequipped " + removed.getName() + " from " + slot;
     }
 
     public void sortByName() {
@@ -209,7 +221,7 @@ public class InventoryService {
     }
 
     // Finder alle items hvor navnet indeholder søgeteksten (case-insensitive).
-// Tomt eller blank input returnerer en tom liste.
+    // Tomt eller blank input returnerer en tom liste.
     public List<Item> searchByNameContains(String text) {
 
         if (text == null || text.isBlank()) {
@@ -239,20 +251,17 @@ public class InventoryService {
         return results;
     }
 
-    // filtrerer efter min/max vægt
     public List<Item> filterByWeight(double min, double max) {
         List<Item> results = new ArrayList<>();
 
         for (Item i : inventory.getItems()) {
-            double w = i.getWeight();
-            if (w >= min && w <= max) {
+            if (i.getWeight() >= min && i.getWeight() <= max) {
                 results.add(i);
             }
         }
         return results;
     }
 
-    // filtrerer efter rarity
     public List<Item> filterByRarity(Rarity rarity) {
         List<Item> results = new ArrayList<>();
 
@@ -264,11 +273,8 @@ public class InventoryService {
         return results;
     }
 
+    // køber inventory slots
     public boolean buyInventorySlots(int amount) {
-        return player.getInventory().buyInventorySlots(amount);
-    }
-
-    public boolean isEquipmentEmpty() {
-        return player.getEquipment().isEmpty();
+        return inventory.buyInventorySlots(amount);
     }
 }

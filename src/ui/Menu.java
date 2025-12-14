@@ -1,91 +1,66 @@
 package ui;
 
 import domain.*;
+
+import domain.enums.ArmourSlot;
+import domain.enums.HandType;
+import domain.enums.ItemType;
+import domain.enums.Rarity;
 import service.InventoryService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-// Konsol-baseret brugergrænseflade.
-// Viser menu, læser input og kalder InventoryService.
 public class Menu {
 
     private final Scanner input = new Scanner(System.in);
 
-    private InventoryService service; // oprettes i start()
-    private Player player;            // den aktive spiller
-
-    // ---------- Initialisering ----------
+    private final Player player = new Player("Player1");
+    private final InventoryService service = new InventoryService(player);
 
     public void start() {
-        System.out.println("Welcome to Legend of CodeCraft!");
+        while (true) {
+            ConsoleUI.header("MAIN MENU");
+            ConsoleUI.option(1, "Inventory");
+            ConsoleUI.option(2, "Equipment");
+            ConsoleUI.option(3, "Use consumable");
+            ConsoleUI.option(4, "Search / filter");
+            ConsoleUI.option(5, "Buy slots");
+            ConsoleUI.option(6, "Save inventory");
+            ConsoleUI.option(7, "Load inventory");
+            ConsoleUI.option(8, "Exit");
+            ConsoleUI.footer();
 
-        initPlayerAndService();
-
-        boolean running = true;
-
-        while (running) {
-            printMainMenu();
             int choice = readMenuChoice(1, 8);
-            running = handleMainChoice(choice);
-        }
 
-        System.out.println("Menu has closed!");
-    }
-
-    private void initPlayerAndService() {
-        // Opretter spiller og service-lag ud fra spillerens navn
-        System.out.print("Please enter player name: ");
-        String playerName = input.nextLine();
-
-        player = new Player(playerName);
-        service = new InventoryService(player);
-    }
-
-    // ---------- Hovedmenu ----------
-
-    private void printMainMenu() {
-        System.out.println("============ MENU ============");
-        System.out.println("1.  Inventory menu");
-        System.out.println("2.  Equipment menu");
-        System.out.println("3.  Search menu");
-        System.out.println("4.  Use consumable");
-        System.out.println("5.  Buy inventory slots");
-        System.out.println("6.  Save inventory");
-        System.out.println("7.  Load inventory from file");
-        System.out.println("8.  End");
-        System.out.println("============ ---- ============");
-    }
-
-    private boolean handleMainChoice(int choice) {
-        switch (choice) {
-            case 1 -> inventoryMenu();
-            case 2 -> equipmentMenu();
-            case 3 -> searchMenu();
-            case 4 -> useConsumable();
-            case 5 -> buySlotsMenu();
-            case 6 -> saveInvToFile();
-            case 7 -> loadInvFromFile();
-            case 8 -> { return false; }
-            default -> {
-                System.out.println("Invalid choice. Please enter a number between 1 and 8.");
-                pause();
+            switch (choice) {
+                case 1 -> inventoryMenu();
+                case 2 -> equipmentMenu();
+                case 3 -> useConsumable();
+                case 4 -> searchMenu();
+                case 5 -> buySlotsMenu();
+                case 6 -> saveInvToFile();
+                case 7 -> loadInvFromFile();
+                case 8 -> {
+                    ConsoleUI.message("Exiting...");
+                    return;
+                }
             }
         }
-        return true;
     }
 
     // ---------- Sub menus ----------
 
     private void inventoryMenu() {
         while (true) {
-            System.out.println("\n=== INVENTORY MENU ===");
-            System.out.println("1. Show inventory");
-            System.out.println("2. Add item to inventory");
-            System.out.println("3. Remove item from inventory");
-            System.out.println("4. Sort items in inventory");
-            System.out.println("5. Back");
+            ConsoleUI.header("INVENTORY MENU");
+            ConsoleUI.option(1, "Show inventory");
+            ConsoleUI.option(2, "Add item");
+            ConsoleUI.option(3, "Remove item");
+            ConsoleUI.option(4, "Sort items");
+            ConsoleUI.option(5, "Back");
+            ConsoleUI.footer();
 
             int choice = readMenuChoice(1, 5);
 
@@ -101,11 +76,12 @@ public class Menu {
 
     private void equipmentMenu() {
         while (true) {
-            System.out.println("\n=== EQUIPMENT MENU ===");
-            System.out.println("1. Show equipment");
-            System.out.println("2. Equip item from inventory");
-            System.out.println("3. Unequip item");
-            System.out.println("4. Back");
+            ConsoleUI.header("EQUIPMENT MENU");
+            ConsoleUI.option(1, "Show equipment");
+            ConsoleUI.option(2, "Equip item");
+            ConsoleUI.option(3, "Unequip item");
+            ConsoleUI.option(4, "Back");
+            ConsoleUI.footer();
 
             int choice = readMenuChoice(1, 4);
 
@@ -120,13 +96,14 @@ public class Menu {
 
     private void searchMenu() {
         while (true) {
-            System.out.println("\n=== SEARCH MENU ===");
-            System.out.println("1. Search by exact name");
-            System.out.println("2. Search by name contains");
-            System.out.println("3. Filter by type");
-            System.out.println("4. Filter by weight range");
-            System.out.println("5. Filter by rarity");
-            System.out.println("6. Back");
+            ConsoleUI.header("SEARCH MENU");
+            ConsoleUI.option(1, "Search by exact name");
+            ConsoleUI.option(2, "Search by name contains");
+            ConsoleUI.option(3, "Filter by type");
+            ConsoleUI.option(4, "Filter by weight range");
+            ConsoleUI.option(5, "Filter by rarity");
+            ConsoleUI.option(6, "Back");
+            ConsoleUI.footer();
 
             int choice = readMenuChoice(1, 6);
 
@@ -146,12 +123,13 @@ public class Menu {
     private void showInventory() {
         System.out.println();
         System.out.println("Player: " + player.getName());
-        System.out.print(service.getInventoryOverview());
+        System.out.print(InventoryPrinter.format(service.getInventory()));
     }
 
     private void showEquipment() {
-        System.out.println("\n=== EQUIPMENT ===");
-        System.out.println(service.getPlayer().getEquipment().getOverview());
+        System.out.println();
+        System.out.println("Player: " + player.getName());
+        System.out.print(EquipmentPrinter.format(service.getPlayer().getEquipment()));
         pause();
     }
 
@@ -185,16 +163,9 @@ public class Menu {
                 continue;
             }
 
-            double sum = weight + service.getInventory().getTotalWeight();
-            if (sum > service.getInventory().getMaxWeight()) {
-                System.out.println("Error: Cannot add item. Player is too heavy");
-                continue;
-            }
-
             break;
         }
 
-        // subtype-felter (kun relevante felter fyldes ud afhængig af type)
         Integer damage = null;
         HandType handType = null;
         Integer defence = null;
@@ -203,46 +174,47 @@ public class Menu {
         Integer stackSize = null;
 
         if (type == ItemType.WEAPON) {
-            damage = readIntMin(0, "Damage: ");
-            handType = readEnum(HandType.class, "Hand type (ONE_HAND/OFF_HAND/TWO_HAND): ");
+            System.out.print("Damage: ");
+            damage = readInt();
+            handType = readEnum(HandType.class, "HandType (ONE_HAND/OFF_HAND/TWO_HAND): ");
         }
 
         if (type == ItemType.ARMOUR) {
-            defence = readIntMin(0, "Defence: ");
-            armourSlot = readEnum(ArmourSlot.class, "Slot (HEAD/CHEST/LEGS/FEET): ");
+            System.out.print("Defence: ");
+            defence = readInt();
+            armourSlot = readEnum(ArmourSlot.class, "ArmourSlot (HEAD/CHEST/LEGS/FEET): ");
         }
 
         if (type == ItemType.CONSUMABLE) {
-            System.out.print("Effect type: ");
+            System.out.print("EffectType (text): ");
             effectType = input.nextLine().trim();
-
-            stackSize = readIntMin(1, "Stack size: ");
+            System.out.print("StackSize: ");
+            stackSize = readInt();
+            if (stackSize < 1) stackSize = 1;
         }
 
-        String result = service.addItem(
-                name, type, rarity, weight,
-                damage, handType, defence, armourSlot,
-                effectType, stackSize
-        );
-
+        String result = service.addItem(name, type, rarity, weight, damage, handType, defence, armourSlot, effectType, stackSize);
         System.out.println(result);
         pause();
     }
 
     private void removeItem() {
         if (service.isInventoryEmpty()) {
-            System.out.println("Inventory is empty.");
+            ConsoleUI.message("Inventory is empty.");
             pause();
             return;
         }
 
         while (true) {
             showInventory();
-            System.out.print("Item you want to remove (or type 'exit' to go back): ");
+            System.out.print("Item to remove (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
             if (name.equalsIgnoreCase("exit")) {
-                return; // tilbage til hovedmenu
+                return;
+            }
+            if (name.isBlank()) {
+                continue;
             }
 
             String result = service.removeItemByName(name);
@@ -260,7 +232,7 @@ public class Menu {
     private void equipItem() {
 
         if (service.isInventoryEmpty()) {
-            System.out.println("Inventory is empty.");
+            ConsoleUI.message("Inventory is empty.");
             pause();
             return;
         }
@@ -275,13 +247,13 @@ public class Menu {
         }
 
         if (equipables.isEmpty()) {
-            System.out.println("No equippable items in inventory.");
+            ConsoleUI.message("No equippable items in inventory.");
             pause();
             return;
         }
 
         // Vis kun listen over equippable items (mere brugervenligt)
-        printResults(equipables);
+        printResults("EQUIPPABLE ITEMS", equipables);
 
         while (true) {
             System.out.print("Item you want to equip (or type 'exit' to go back): ");
@@ -297,18 +269,18 @@ public class Menu {
             Item item = service.findItemByName(name);
 
             if (item == null) {
-                System.out.println("Item not found.");
+                ConsoleUI.message("Item not found.");
                 continue;
             }
 
             // Sikkerhedstjek (hvis brugeren skriver et navn på et ikke-equippable item)
             if (!(item instanceof Weapon || item instanceof Armour)) {
-                System.out.println("Item cannot be equipped.");
+                ConsoleUI.message("Item cannot be equipped.");
                 continue;
             }
 
             String result = service.equip(item);
-            System.out.println(result);
+            ConsoleUI.message(result);
             pause();
             return;
         }
@@ -316,7 +288,7 @@ public class Menu {
 
     private void unequipItem() {
         if (service.isEquipmentEmpty()) {
-            System.out.println("Nothing is equipped.");
+            ConsoleUI.message("Nothing is equipped.");
             pause();
             return;
         }
@@ -326,21 +298,21 @@ public class Menu {
             String slot = input.nextLine().trim();
 
             if (slot.equalsIgnoreCase("exit")) {
-                System.out.println("Returning to menu");
+                ConsoleUI.message("Returning to menu");
                 return;
             }
 
             if (!isValidUnequipSlot(slot)) {
-                System.out.println("Invalid input. Try again.");
+                ConsoleUI.message("Invalid input. Try again.");
                 continue;
             }
 
             String result = service.unequip(slot);
-            System.out.println(result);
+            ConsoleUI.message(result);
             pause();
 
             if (service.isEquipmentEmpty()) {
-                System.out.println("Nothing else is equipped.");
+                ConsoleUI.message("Nothing else is equipped.");
                 pause();
                 return;
             }
@@ -349,7 +321,7 @@ public class Menu {
 
     private void useConsumable() {
         if (service.isInventoryEmpty()) {
-            System.out.println("Inventory is empty.");
+            ConsoleUI.message("Inventory is empty.");
             pause();
             return;
         }
@@ -367,21 +339,30 @@ public class Menu {
             }
 
             String result = service.useConsumable(name);
-            System.out.println(result);
-            pause();
 
-            if (result.toLowerCase().contains("not found")
-                    || result.toLowerCase().contains("no consumable")) {
-                continue;
+            // Succes-output opdelt i boks + linje
+            if (result.toLowerCase().contains("used consumable")) {
+                String[] parts = result.split("\\|");
+
+                ConsoleUI.message(parts[0].trim());
+
+                if (parts.length > 1) {
+                    System.out.println(parts[1].trim());
+                }
+                pause();
+                return;
             }
 
-            return;
+            // Fejlbesked
+            ConsoleUI.message(result);
+            pause();
         }
     }
 
+
     private void searchItem() {
         System.out.print("Name to search for: ");
-        String name = input.nextLine();
+        String name = input.nextLine().trim();
 
         Item item = service.findItemByName(name);
         List<Item> single = new ArrayList<>();
@@ -389,22 +370,27 @@ public class Menu {
             single.add(item);
         }
 
-        printResults(single);
+        printResults("RESULTS", single);
+
+        if (item == null) {
+            ConsoleUI.message("Tip: Exact search needs full name.");
+        }
         pause();
     }
 
     private void sortItems() {
         if (service.isInventoryEmpty()) {
-            System.out.println("Inventory is empty.");
+            ConsoleUI.message("Inventory is empty.");
             pause();
             return;
         }
 
-        System.out.println("\nSort by:");
-        System.out.println("1. Name");
-        System.out.println("2. Weight");
-        System.out.println("3. Type");
-        System.out.println("4. Rarity");
+        ConsoleUI.header("SORT MENU");
+        ConsoleUI.option(1, "Name");
+        ConsoleUI.option(2, "Weight");
+        ConsoleUI.option(3, "Type");
+        ConsoleUI.option(4, "Rarity");
+        ConsoleUI.footer();
 
         int choice = readMenuChoice(1, 4);
 
@@ -421,54 +407,55 @@ public class Menu {
 
     private void saveInvToFile() {
         System.out.print("Filename to save to (e.g. inventoryLog.txt): ");
-        String name = input.nextLine();
+        String name = input.nextLine().trim();
 
         boolean ok = service.save(name);
 
         if (ok) {
-            System.out.println("Inventory has been saved!");
+            ConsoleUI.message("Inventory has been saved!");
         } else {
-            System.out.println("Could not save inventory (invalid path or write error).");
+            ConsoleUI.message("Could not save inventory (invalid path or write error).");
         }
         pause();
     }
 
     private void loadInvFromFile() {
         System.out.print("Filename to load from: ");
-        String name = input.nextLine();
+        String name = input.nextLine().trim();
 
         boolean ok = service.load(name);
 
         if (ok) {
-            System.out.println("Inventory has been loaded!");
+            ConsoleUI.message("Inventory has been loaded!");
         } else {
-            System.out.println("Could not load inventory (file missing or invalid).");
+            ConsoleUI.message("Could not load inventory (file missing or invalid).");
         }
         pause();
     }
 
     public void buySlotsMenu() {
         while (true) {
-            System.out.println("=== BUY SLOTS ===");
+            ConsoleUI.header("BUY SLOTS");
             System.out.println("Unlocked: " + service.getInventory().getUnlockedSlots()
                     + "/" + service.getInventory().getMaxSlots());
             System.out.println("How many slots do you want to buy? (or 0 to go back)");
+            ConsoleUI.footer();
 
             int amount = readInt();
 
             if (amount == 0) {
-                return; //  tilbage til menu
+                return; // tilbage til menu
             }
 
             boolean success = service.buyInventorySlots(amount);
 
             if (success) {
-                System.out.println("Slots successfully unlocked.");
+                ConsoleUI.message("Slots successfully unlocked.");
                 pause();
                 return;
             }
 
-            System.out.println("Could not buy slots. Amount must be > 0 and not exceed max slots.");
+            ConsoleUI.message("Could not buy slots. Must be > 0 and within max slots.");
             pause();
         }
     }
@@ -477,16 +464,16 @@ public class Menu {
 
     private void handleSearchByNameContains() {
         System.out.print("Text to search for: ");
-        String text = input.nextLine();
+        String text = input.nextLine().trim();
         List<Item> results = service.searchByNameContains(text);
-        printResults(results);
+        printResults("RESULTS", results);
         pause();
     }
 
     private void handleFilterByType() {
         ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
         List<Item> results = service.filterByType(type);
-        printResults(results);
+        printResults("RESULTS", results);
         pause();
     }
 
@@ -496,15 +483,19 @@ public class Menu {
         System.out.print("Max weight: ");
         double max = readDouble();
         List<Item> results = service.filterByWeight(min, max);
-        printResults(results);
+        printResults("RESULTS", results);
         pause();
     }
 
     private void handleFilterByRarity() {
         Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
         List<Item> results = service.filterByRarity(rarity);
-        printResults(results);
+        printResults("RESULTS", results);
         pause();
+    }
+
+    private void printResults(String title, List<Item> items) {
+        System.out.println(ItemTablePrinter.format(title, items));
     }
 
     // ---------- ui hjælpemetoder ----------
@@ -523,8 +514,7 @@ public class Menu {
                 return choice;
             }
 
-            System.out.println("Invalid choice. Please choose a number between " + min + " and " + max + ".");
-            pause();
+            ConsoleUI.message("Invalid choice. Please choose a number between " + min + " and " + max + ".");
         }
     }
 
@@ -539,84 +529,47 @@ public class Menu {
         }
     }
 
+    // Læser double robust:
+    // - accepterer både "1.5" og "1,5"
     private double readDouble() {
         while (true) {
-            String line = input.nextLine();
+            String line = input.nextLine().trim();
+
+            // Dansk komma-support
+            line = line.replace(',', '.');
+
             try {
-                return Double.parseDouble(line.trim());
+                return Double.parseDouble(line);
             } catch (NumberFormatException e) {
                 System.out.print("Please enter a valid number: ");
             }
         }
     }
 
-    private void pause() {
-        System.out.println("Press Enter to continue...");
-        input.nextLine();
-    }
-
-    private int readIntMin(int min, String prompt) {
+    private <T extends Enum<T>> T readEnum(Class<T> enumClass, String prompt) {
         while (true) {
             System.out.print(prompt);
-            int value = readInt();
-            if (value >= min) return value;
-            System.out.println("Error: Value must be at least " + min);
-        }
-    }
-
-    // Konverterer brugerinput til enum og håndterer ugyldigt input med try/catch
-    private <T extends Enum<T>> T readEnum(Class<T> enumType, String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String text = input.nextLine().trim();
+            String inputText = input.nextLine().trim();
 
             try {
-                String normalized = text
-                        .toUpperCase()
-                        .replace(' ', '_')
-                        .replace('-', '_');
-
-                return Enum.valueOf(enumType, normalized);
-
+                return Enum.valueOf(enumClass, inputText.toUpperCase());
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid input. Try again.");
+                ConsoleUI.message("Invalid input. Try again.");
             }
         }
     }
 
     private boolean isValidUnequipSlot(String slot) {
-        return slot.equalsIgnoreCase("MainHand")
-                || slot.equalsIgnoreCase("OffHand")
-                || slot.equalsIgnoreCase("Head")
-                || slot.equalsIgnoreCase("Chest")
-                || slot.equalsIgnoreCase("Legs")
-                || slot.equalsIgnoreCase("Feet");
+        if (slot == null) return false;
+        String s = slot.trim().toLowerCase();
+
+        return s.equals("mainhand") || s.equals("offhand") ||
+                s.equals("head") || s.equals("chest") ||
+                s.equals("legs") || s.equals("feet");
     }
 
-    // Printer en tabel med items i samme layout som inventory overview.
-    private void printResults(List<Item> items) {
-        if (items.isEmpty()) {
-            System.out.println("No items found.");
-            return;
-        }
-
-        System.out.println("\n====== SEARCH RESULTS ======");
-        System.out.println("-------------------------------------------------------------");
-        System.out.printf("%-3s %-18s %-12s %-12s %-8s%n",
-                "No", "Name", "Type", "Rarity", "Weight");
-        System.out.println("-------------------------------------------------------------");
-
-        int index = 1;
-        for (Item item : items) {
-            System.out.printf(
-                    "%-3d %-18s %-12s %-12s %-8.1f%n",
-                    index++,
-                    item.getName(),
-                    item.getType(),
-                    item.getRarity(),
-                    item.getWeight()
-            );
-        }
-        System.out.println("-------------------------------------------------------------");
+    private void pause() {
+        System.out.println("Press Enter to continue...");
+        input.nextLine();
     }
 }

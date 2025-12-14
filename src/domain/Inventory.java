@@ -1,6 +1,5 @@
 package domain;
 
-
 import exceptions.NegativeValues;
 
 import java.util.ArrayList;
@@ -19,8 +18,7 @@ public class Inventory {
     // selve listen af items (kun Inventory må ændre denne direkte)
     private final ArrayList<Item> slots = new ArrayList<>();
 
-    public Inventory() {
-    }
+    public Inventory() { }
 
     public Inventory(double maxWeight, int maxSlots, int unlockedSlots) {
         this.maxWeight = maxWeight;
@@ -34,7 +32,7 @@ public class Inventory {
         return maxWeight;
     }
 
-    public void setMaxWeight (double maxWeight) throws NegativeValues {
+    public void setMaxWeight(double maxWeight) throws NegativeValues {
         if (maxWeight < 0) {
             throw new NegativeValues("Max weight cannot be negative.");
         }
@@ -57,11 +55,19 @@ public class Inventory {
         this.unlockedSlots = unlockedSlots;
     }
 
+    // Total vægt i inventory.
+    // VIGTIGT: Consumables tæller vægt pr. enhed * stackSize (ellers kan man omgå maxWeight via stacking).
     public double getTotalWeight() {
         double sum = 0;
+
         for (Item item : slots) {
-            sum += item.getWeight();
+            if (item instanceof Consumable c) {
+                sum += item.getWeight() * c.getStackSize();
+            } else {
+                sum += item.getWeight();
+            }
         }
+
         return sum;
     }
 
@@ -75,7 +81,17 @@ public class Inventory {
     public boolean addItem(Item item) {
 
         // stacking for consumables med samme navn (lægger stackSize sammen)
+        // MEN: vi skal stadig respektere maxWeight (stacking er ikke “gratis”).
         if (item instanceof Consumable cNew) {
+
+            // beregn hvad denne tilføjelse koster i vægt
+            double addedWeight = cNew.getWeight() * cNew.getStackSize();
+
+            // hvis vægtgrænse overskrides, må vi ikke stack
+            if (getTotalWeight() + addedWeight > maxWeight) {
+                return false;
+            }
+
             for (Item existing : slots) {
                 if (existing instanceof Consumable cOld &&
                         cOld.getName().equalsIgnoreCase(cNew.getName())) {
@@ -90,7 +106,14 @@ public class Inventory {
         if (slots.size() >= unlockedSlots) {
             return false;
         }
-        if (getTotalWeight() + item.getWeight() > maxWeight) {
+
+        // vægt-tjek (for consumables: weight * stackSize)
+        double itemWeight = item.getWeight();
+        if (item instanceof Consumable c) {
+            itemWeight = item.getWeight() * c.getStackSize();
+        }
+
+        if (getTotalWeight() + itemWeight > maxWeight) {
             return false;
         }
 
@@ -154,49 +177,6 @@ public class Inventory {
         }
     }
 
-    // --- tekstlig oversigt ---
-
-    // Returnerer en teksttabel med alle items og samlet status (vægt, slots).
-    public String getDetailedOverview() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("====== INVENTORY OVERVIEW ======\n");
-        sb.append("-------------------------------------------------------------\n");
-        sb.append(String.format(
-                "%-3s %-18s %-12s %-12s %-8s%n",
-                "No", "Name", "Type", "Rarity", "Weight"
-        ));
-        sb.append("-------------------------------------------------------------\n");
-
-        if (slots.isEmpty()) {
-            sb.append("Inventory is empty.\n");
-        } else {
-            int index = 1;
-            for (Item item : slots) {
-                sb.append(String.format(
-                        "%-3d %-18s %-12s %-12s %-8.1f%n",
-                        index++,
-                        item.getName(),
-                        item.getType(),
-                        item.getRarity(),
-                        item.getWeight()
-                ));
-            }
-        }
-
-        sb.append("-------------------------------------------------------------\n");
-        sb.append(String.format(
-                "Items: %d | Total weight: %.1f / %.1f | Unlocked slots: %d / %d%n",
-                slots.size(),
-                getTotalWeight(),
-                maxWeight,
-                unlockedSlots,
-                maxSlots
-        ));
-
-        return sb.toString();
-    }
-
     // Låser flere slots op hvis amount er gyldig og der er plads til det
     public boolean buyInventorySlots(int amount) {
 
@@ -217,6 +197,10 @@ public class Inventory {
 
     @Override
     public String toString() {
-        return getDetailedOverview();
+        // Domain-toString bør være debug/neutral (ikke UI-tabel).
+        return "Inventory{items=" + slots.size() +
+                ", totalWeight=" + String.format("%.1f", getTotalWeight()) + "/" + String.format("%.1f", maxWeight) +
+                ", unlockedSlots=" + unlockedSlots + "/" + maxSlots +
+                "}";
     }
 }

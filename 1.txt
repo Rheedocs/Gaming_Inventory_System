@@ -1,6 +1,0 @@
-# Inventory settings
-maxWeight=50.0
-maxSlots=192
-unlockedSlots=44
-
-# Items

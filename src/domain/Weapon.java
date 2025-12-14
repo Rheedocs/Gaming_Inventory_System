@@ -1,5 +1,9 @@
 package domain;
 
+import domain.enums.HandType;
+import domain.enums.ItemType;
+import domain.enums.Rarity;
+
 // Repræsenterer et våben med skade og hvilken hånd-type (OneHand/OffHand/TwoHand).
 public class Weapon extends Item {
 

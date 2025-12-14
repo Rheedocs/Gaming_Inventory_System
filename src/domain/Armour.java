@@ -1,5 +1,9 @@
 package domain;
 
+import domain.enums.ArmourSlot;
+import domain.enums.ItemType;
+import domain.enums.Rarity;
+
 // Repræsenterer rustning med defence-værdi og slot (Head/Chest/Legs/Feet).
 public class Armour extends Item {
 

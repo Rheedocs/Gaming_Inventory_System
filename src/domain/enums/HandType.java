@@ -1,4 +1,4 @@
-package domain;
+package domain.enums;
 
 // Hvilken hånd-type et våben bruger.
 public enum HandType {

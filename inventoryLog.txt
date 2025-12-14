@@ -1,23 +1,18 @@
 # Inventory settings
-maxWeight=50
+maxWeight=50.0
 maxSlots=192
-unlockedSlots=32
+unlockedSlots=64
 
 # Items
-Weapon;name=Iron Sabre;rarity=Common;weight=2.5;damage=8;hand=OneHand
-Weapon;name=Moon Cleaver;rarity=Epic;weight=7.3;damage=22;hand=TwoHand
-Weapon;name=Glimmer Dagger;rarity=Uncommon;weight=0.9;damage=5;hand=OffHand
-Weapon;name=Stormbreaker Bow;rarity=Rare;weight=4.8;damage=17;hand=TwoHand
-
-Armour;name=Reinforced Hood;rarity=Uncommon;weight=1.2;defence=4;slot=Head
-Armour;name=Kingsguard Vest;rarity=Rare;weight=5.0;defence=12;slot=Chest
-Armour;name=Shadow Legwraps;rarity=Epic;weight=3.1;defence=9;slot=Legs
-Armour;name=Swiftwalker Boots;rarity=Common;weight=2.0;defence=3;slot=Feet
-Armour;name=Runebound Shield;rarity=Rare;weight=6.7;defence=15;slot=OffHand
-
-Consumable;name=Health Potion;rarity=Common;weight=0.5;effect=Heal;stack=3
-Consumable;name=Mana Elixir;rarity=Rare;weight=0.4;effect=Restore Mana;stack=2
-Consumable;name=Stamina Brew;rarity=Uncommon;weight=0.6;effect=Stamina Boost;stack=5
-Consumable;name=Ember Tonic;rarity=Epic;weight=0.3;effect=Fire Burst;stack=1
-Consumable;name=Traveler's Rations;rarity=Common;weight=0.7;effect=Small Heal;stack=4
-Consumable;name=Frostbite Vial;rarity=Rare;weight=0.2;effect=Freeze Strike;stack=1
+ARMOUR;name=Leather Cap;rarity=COMMON;weight=1.2;defence=2;slot=HEAD
+ARMOUR;name=Boots;rarity=COMMON;weight=1.5;defence=1;slot=FEET
+CONSUMABLE;name=Arrow Bundle;rarity=COMMON;weight=0.1;effect=Ammo;stack=20
+CONSUMABLE;name=Healing Potion;rarity=COMMON;weight=0.5;effect=Heal;stack=5
+WEAPON;name=Wooden Shield;rarity=UNCOMMON;weight=5.0;damage=2;hand=OFF_HAND
+ARMOUR;name=Chainmail;rarity=UNCOMMON;weight=7.8;defence=8;slot=CHEST
+CONSUMABLE;name=Stamina Snack;rarity=UNCOMMON;weight=0.2;effect=Stamina;stack=3
+WEAPON;name=Great Axe;rarity=RARE;weight=9.5;damage=25;hand=TWO_HAND
+ARMOUR;name=Iron Greaves;rarity=RARE;weight=6.3;defence=6;slot=LEGS
+WEAPON;name=Weapon of Test;rarity=EPIC;weight=2.0;damage=100;hand=TWO_HAND
+ARMOUR;name=Armour of Coding;rarity=EPIC;weight=3.0;defence=20;slot=CHEST
+WEAPON;name=Iron Sword;rarity=COMMON;weight=3.5;damage=12;hand=ONE_HAND

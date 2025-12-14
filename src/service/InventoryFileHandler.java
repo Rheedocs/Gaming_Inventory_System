@@ -1,6 +1,11 @@
 package service;
 
 import domain.*;
+import domain.enums.ArmourSlot;
+import domain.enums.HandType;
+import domain.enums.ItemType;
+import domain.enums.Rarity;
+
 import java.io.*;
 import java.util.*;
 

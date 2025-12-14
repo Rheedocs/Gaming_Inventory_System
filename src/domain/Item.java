@@ -1,5 +1,8 @@
 package domain;
 
+import domain.enums.ItemType;
+import domain.enums.Rarity;
+
 // Grundlæggende item i systemet. Weapon, Armour og Consumable nedarver fra denne.
 public class Item {
 
@@ -19,7 +22,7 @@ public class Item {
         return name;
     }
 
-    public void setName(String name) { // simpelt navnsskift
+    public void setName(String name) { // simpelt navne skift
         this.name = name;
     }
 
