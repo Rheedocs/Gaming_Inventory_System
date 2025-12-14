@@ -1,8 +1,9 @@
 package domain;
 
+// Hvilket rustnings-slot et armour-item passer i.
 public enum ArmourSlot {
-    HELMET,
+    HEAD,
     CHEST,
     LEGS,
-    BOOTS
+    FEET
 }

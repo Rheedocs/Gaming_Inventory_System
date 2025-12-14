@@ -4,7 +4,7 @@ package domain;
 public class Weapon extends Item {
 
     private int damage;
-    private HandType handType; // OneHand, OffHand, TwoHand
+    private HandType handType; // ONE_HAND, OFF_HAND, TWO_HAND
 
     public Weapon(String name, Rarity rarity, double weight, int damage, HandType handType) {
         super(name, ItemType.WEAPON, rarity, weight);

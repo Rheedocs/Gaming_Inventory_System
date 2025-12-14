@@ -1,6 +1,8 @@
 package db;
 
 import domain.Item;
+import domain.ItemType;
+import domain.Rarity;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,8 +18,8 @@ public class ItemRepository {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, item.getName());
-            ps.setString(2, item.getType());
-            ps.setString(3, item.getRarity());
+            ps.setString(2, item.getType().name());
+            ps.setString(3, item.getRarity().name());
             ps.setDouble(4, item.getWeight());
 
             ps.executeUpdate();
@@ -39,8 +41,8 @@ public class ItemRepository {
 
             while (rs.next()) {
                 String name = rs.getString("name");
-                String type = rs.getString("type");
-                String rarity = rs.getString("rarity");
+                ItemType type = ItemType.valueOf(rs.getString("type").toUpperCase());
+                Rarity rarity = Rarity.valueOf(rs.getString("rarity").toUpperCase());
                 double weight = rs.getDouble("weight");
 
                 Item item = new Item(name, type, rarity, weight);

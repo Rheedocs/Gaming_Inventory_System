@@ -23,19 +23,19 @@ public class Item {
         this.name = name;
     }
 
-    public String getType() {
+    public ItemType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ItemType type) {
         this.type = type;
     }
 
-    public String getRarity() {
+    public Rarity getRarity() {
         return rarity;
     }
 
-    public void setRarity(String rarity) {
+    public void setRarity(Rarity rarity) {
         this.rarity = rarity;
     }
 

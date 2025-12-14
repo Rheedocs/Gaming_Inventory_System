@@ -1,13 +1,7 @@
 package service;
 
-import domain.Player;
-import domain.Inventory;
-import domain.Item;
-import domain.Armour;
-import domain.Consumable;
-import domain.Weapon;
+import domain.*;
 import db.ItemRepository;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +14,6 @@ public class InventoryService {
     private final Inventory inventory;  // genvej til spillerens inventory
 
     private final ItemRepository repo = new ItemRepository();
-
 
     public InventoryService(Player player) {
         this.player = player;
@@ -54,42 +47,45 @@ public class InventoryService {
     // Opretter det konkrete item (Weapon/Armour/Consumable) ud fra input fra Menu
     public String addItem(
             String name,
-            String type,
-            String rarity,
+            ItemType type,
+            Rarity rarity,
             double weight,
-            Integer damage,       // Weapon
-            String handType,      // Weapon
-            Integer defence,      // Armour
-            String armourSlot,    // Armour
-            String effectType,    // Consumable
-            Integer stackSize     // Consumable
+            Integer damage,        // Weapon
+            HandType handType,     // Weapon
+            Integer defence,       // Armour
+            ArmourSlot armourSlot, // Armour
+            String effectType,     // Consumable
+            Integer stackSize      // Consumable
     ) {
         Item item;
 
         // Vælg konkret subtype ud fra type og giv de ekstra felter videre
-        switch (type.toLowerCase()) {
+        switch (type) {
 
-            case "weapon" -> {
-                Weapon w = new Weapon(name, "Weapon", rarity, weight);
-                if (damage != null) w.setDamage(damage);
-                if (handType != null) w.setHandtype(handType);
-                item = w;
+            case WEAPON -> {
+                // fallback-værdier hvis UI ikke har givet input
+                int dmg = (damage != null) ? damage : 0;
+                HandType ht = (handType != null) ? handType : HandType.ONE_HAND;
+
+                item = new Weapon(name, rarity, weight, dmg, ht);
             }
 
-            case "armour", "armor" -> {
+            case ARMOUR -> {
                 int def = (defence != null) ? defence : 0;
-                String slot = (armourSlot != null) ? armourSlot : "Chest";
-                item = new Armour(name, "Armour", rarity, weight, def, slot);
+                ArmourSlot slot = (armourSlot != null) ? armourSlot : ArmourSlot.CHEST;
+
+                item = new Armour(name, rarity, weight, def, slot);
             }
 
-            case "consumable" -> {
-                Consumable c = new Consumable(name, "Consumable", rarity, weight);
+            case CONSUMABLE -> {
+                int st = (stackSize != null) ? stackSize : 1;
+
+                Consumable c = new Consumable(name, rarity, weight, st);
                 if (effectType != null) c.setEffectType(effectType);
-                if (stackSize != null) c.setStackSize(stackSize);
                 item = c;
             }
 
-            default -> item = new Item(name, type, rarity, weight);   // fallback: almindeligt item
+            default -> item = new Item(name, type, rarity, weight);
         }
 
         // addItem håndterer selv stacking, slots og vægt
@@ -120,7 +116,7 @@ public class InventoryService {
         }
 
         // tjek om det faktisk er et consumable
-        if (!item.getType().equalsIgnoreCase("Consumable")) {
+        if (item.getType() != ItemType.CONSUMABLE) {
             return "Item is not a consumable.";
         }
 
@@ -216,11 +212,11 @@ public class InventoryService {
     }
 
     // filtrerer items efter type
-    public List<Item> filterByType(String type) {
+    public List<Item> filterByType(ItemType type) {
         List<Item> results = new ArrayList<>();
 
         for (Item i : inventory.getItems()) {
-            if (i.getType().equalsIgnoreCase(type)) {
+            if (i.getType() == type) {
                 results.add(i);
             }
         }
@@ -241,11 +237,11 @@ public class InventoryService {
     }
 
     // filtrerer efter rarity
-    public List<Item> filterByRarity(String rarity) {
+    public List<Item> filterByRarity(Rarity rarity) {
         List<Item> results = new ArrayList<>();
 
         for (Item i : inventory.getItems()) {
-            if (i.getRarity().equalsIgnoreCase(rarity)) {
+            if (i.getRarity() == rarity) {
                 results.add(i);
             }
         }

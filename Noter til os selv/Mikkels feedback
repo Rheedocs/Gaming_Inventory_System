@@ -1,3 +1,6 @@
+[ ] = ikke rettede/tilføjede
+[x] = rettede/tilføjede
+
 Mikkel - lærens feedback
 OOP evaluering af koden
 
@@ -35,24 +38,24 @@ Stærke sider:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige forbedringer (best practice):
 -----------------------------------------------------------------------------------------------------------------------
-    Magic strings:
+    [x] Magic strings:
         -type, rarity, slot, handtype er strings overalt
         -I kan nemt staveforkerte værdier, fx "weapon" vs "Weapon"
         Hint:
             -Overvej at samle dem som konstante værdier et sted
             -Eller på sigt bruge enums til type, rarity, slot, handtype
 
-    Ansvarsfordeling og udskrivning:
+    [x] Ansvarsfordeling og udskrivning:
         -Nogle domain klasser skriver direkte til System.out, fx Inventory.buyInventorySlots
         -Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
          hvad der skal udskrives
 
-    Lange metoder i Menu:
+    [x] Lange metoder i Menu:
         -Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
         -Hint:
             -Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu
 
-    Brug af egne exceptions:
+    [ ] Brug af egne exceptions:
         -I har lavet NegativeValues, MaxWeightReached og ItemNotFound, men de bliver endnu ikke brugt i
          domain eller service
         -Der ligger en oplagt mulighed for at vise Tema 9 og 10 meget tydeligt ved at integrere dem i
@@ -70,19 +73,19 @@ I har allerede:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser og vinkler:
 
-    Variabler og datatyper:
+    [ ] Variabler og datatyper:
         -Lav et sted, hvor I bevidst sammenligner forskellige datatyper
             -fx totalWeight som double vs et heltalsantal af items
         -Overvej at tilføje en simpel price variabel til Item eller Weapon for at kunne vise int, double og måske
          cast mellem dem
 
-    Tildeling og operatorer:
+    [ ] Tildeling og operatorer:
         Gør en beregning lidt mere synlig, fx:
             -totalWeight += item.getWeight
             -unlockedSlots += amount
         - I kan lave en simpel metode, der beregner samlet damage eller samlet defence og bruger +, -, * i udregningen
 
-    Simple tests af programmet:
+    [ ] Simple tests af programmet:
         Lav en lille testmetode eller en separat testklasse, hvor I:
             -Opretter et par Items
             -Kalder en metode
@@ -101,17 +104,17 @@ I har allerede:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    If else og switch:
+    [ ] If else og switch:
         -Lav et eksempel, hvor det er oplagt at vælge switch frem for flere if else, fx på item type eller rarity
         -I kan også vise begge dele i koden samme sted og selv vælge den mest læsbare løsning
 
-    Logiske operatorer:
+    [ ] Logiske operatorer:
         Tilføj et par steder med && og ||:
             -fx når I tjekker om et item kan tilføjes
                 -både vægtgrænse og slots skal være i orden
                 -eller: hvis enten inventory er tomt eller equipment er tomt, gør noget særligt
 
-    Løkker:
+    [ ] Løkker:
         I bruger allerede for loops og for each
         -For at gøre det meget eksamensvenligt kan I:
             -Tilføje et eksempel på en while løkke i Menu, fx til at blive ved med at spørge indtil gyldigt input
@@ -126,18 +129,18 @@ I har i forvejen mange fine metoder, så her handler det mest om at gøre dem ne
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser og pointer:
 
-    Definering og kald af metoder:
+    [ ] Definering og kald af metoder:
         Sørg for at der er et par helt små, overskuelige hjælpe metoder, fx:
             -en metode der kun tæller, hvor mange våben der er i inventory
             -en metode der kun printer en pæn overskrift
 
-    Parametre og returværdier:
+    [ ] Parametre og returværdier:
         Lav mindst én metode i Inventory eller InventoryService der:
             -tager et simpelt parameter (fx rarity som String)
             -returnerer en samling eller et tal (fx antal items med den rarity)
         I kan bruge den metode både til logik og til at vise, hvordan data “rejser” gennem systemet
 
-    Scope og evt overloading
+    [ ] Scope og evt overloading
         Gør jer bevidste om forskellen på lokale variabler i metoder og felter i klassen:
             -Kommenter det et sted
         Hvis I vil ramme overloading, kan I lave to konstruktører eller to metoder med samme navn men
@@ -153,20 +156,20 @@ For at få arrays og HashMap tydeligt med kan I tilføje noget meget lille og af
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    Arrays:
+    [ ] Arrays:
         -Lav et simpelt array et sted, der ikke styrer hele systemet:
             -fx et int array med nogle testvægt værdier
             -eller et String array med standard navne på starter items
         -Lav en lille søgemetode der gennemløber arrayet og finder en værdi
 
-    HashMap:
+    [ ] HashMap:
         -Opret en HashMap, der knytter en nøgle til noget i inventory:
             -fx Map<String, Integer> der tæller, hvor mange items der er af hver rarity
             -eller Map<String, Item> der giver hurtig lookup på navn
         -Brug map’et et enkelt sted i Menu eller InventoryService:
             -fx til at vise antal pr. rarity
 
-    Styrker og svagheder:
+    [ ] Styrker og svagheder:
         Skriv et par kommentarer i koden om:
             -at arrays har fast størrelse
             -at ArrayList er nem at tilføje og fjerne fra
@@ -180,7 +183,7 @@ For at ramme temaet ekstra klart kan I:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    En simpel egen sorteringsalgoritme:
+    [ ] En simpel egen sorteringsalgoritme:
         -Lav en meget lille metode der sorterer et array af tal eller et array af navne med en enkel algoritme
             -fx Bubble Sort
 
@@ -191,15 +194,15 @@ Her står I stærkt allerede, men I kan skærpe forklaringen
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser og pointer:
 
-    Klasser, objekter og konstruktører:
+    [ ] Klasser, objekter og konstruktører:
         -Player, Inventory, Equipment, Item og underklasserne er gode eksempler
         -Overvej at lave en ekstra simpel klasse hvis I vil have et helt “rent” eksempel
 
-    Indkapsling:
+    [ ] Indkapsling:
         -Tjek at alle felter er private og kun tilgås via getters og setters
         -Undgå at andre klasser end Inventory kan ændre direkte i slots listen
 
-    this reference:
+    [ ] this reference:
         -Vis et konkret eksempel i en setter eller i en konstruktør, hvor parameter og felt har samme navn
             -og I bruger this til at skelne
 
@@ -212,11 +215,11 @@ I har allerede
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    Metodeoverriding:
+    [ ] Metodeoverriding:
         -Overvej at override toString i Weapon, Armour og Consumable, så de viser lidt forskellig information
         -Det giver et klart eksempel til eksamen
 
-    Synlig polymorfi:
+    [ ] Synlig polymorfi:
         -Lav en metode, der tager en Item og gør noget, uanset om det er Weapon, Armour eller Consumable:
             -fx en metode der beskriver itemmet i tekstform
         -I kan også lave en lille liste med forskellige underklasser og iterere hen over dem og kalde samme metode
@@ -231,17 +234,17 @@ Her har I allerede noget, der minder om simple mønstre
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    Abstrakt klasse:
+    [ ] Abstrakt klasse:
         -Overvej om Item skal være abstrakt, hvis I aldrig bruger “rene” Item objekter
         -I kunne også forestille jer en abstrakt klasse for “EquipmentItem”, som Weapon og Armour arver fra
 
-    Mini factory idé:
+    [ ] Mini factory idé:
         -I InventoryFileHandler skaber I allerede forskellige objekter afhængigt af type i filen:
             -det kan I bruge som eksempel på en “factory ide”
         -I kan eventuelt samle objekt oprettelse i en separat metode, der baseret på type beslutter, hvilken underklasse
         der skal laves
 
-    Abstraktion:
+    [ ] Abstraktion:
         -Vis et sted, hvor I kun arbejder mod Item, Inventory eller InventoryService uden at kende alle detaljer indeni
 
 -----------------------------------------------------------------------------------------------------------------------
@@ -254,16 +257,16 @@ I har allerede:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    Brug egne exceptions i domain:
+    [ ] Brug egne exceptions i domain:
         -Kast NegativeValues hvis nogen prøver at sætte negativ vægt, skade, defence eller stackSize
         -Kast MaxWeightReached når et item ikke kan tilføjes pga vægtgrænse
         -Kast ItemNotFound når der forsøges at fjerne eller bruge et item, der ikke findes
 
-    Håndtering i service og UI
+    [ ] Håndtering i service og UI
         -Fang disse exceptions i InventoryService eller Menu
         -Oversæt dem til pæne fejlbeskeder til brugeren i stedet for at lade programmet crashe
 
-    Eksempler på typiske fejl
+    [ ] Eksempler på typiske fejl
         -Tal om hvordan I undgår NullPointerException:
             -fx ved at tjekke for null i Equipment før udskrivning
         -Tal om hvordan I undgår ArrayIndexOutOfBoundsException:
@@ -276,18 +279,18 @@ Her kan I med fordel vælge ét konkret flow i jeres program og gøre det til �
 -----------------------------------------------------------------------------------------------------------------------
 Forslag til fokusområde:
 
-    Et sammenhængende eksempel:
+    [ ] Et sammenhængende eksempel:
         -Vælg fx “tilføj item til inventory” eller “brug consumable”
         -Vis:
             -hvilke klasser der er involveret (Menu, InventoryService, Inventory, Item og evt exceptions)
             -hvordan ansvaret er fordelt imellem dem
 
-    Fejlhåndtering inde i metoder:
+    [ ] Fejlhåndtering inde i metoder:
         -Læg tjek ind i domain klasserne, fx i addItem eller i metoder der ændrer stackSize
         -Reager på ugyldige værdier ved at:
             -kaste en exception
             -eller returnere en tydelig statusværdi, som Menu mapper til en fejlbesked
 
-    Robusthed:
+    [ ] Robusthed:
         -Sørg for, at fejl i filindlæsning, forkert input eller overskredet vægtgrænse ikke crasher programmet
         -I stedet skal brugeren få en forståelig besked og kunne prøve igen

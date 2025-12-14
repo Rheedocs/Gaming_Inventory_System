@@ -130,17 +130,17 @@ public class Inventory {
         slots.sort(Comparator.comparing(Item::getType));
     }
 
-    // Sorterer inventory efter rarity ved brug af insertion sort
+    // Sorterer inventory efter rarity ved brug af insertion sort og enum-rækkefølge
     public void sortByRarity() {
         int n = slots.size();
 
         for (int i = 1; i < n; i++) {
             Item current = slots.get(i);
-            int currentRank = rarityRank(current.getRarity());
+            int currentRank = current.getRarity().ordinal();
             int j = i - 1;
 
             // flyt items med højere rarityRank opad i listen
-            while (j >= 0 && rarityRank(slots.get(j).getRarity()) > currentRank) {
+            while (j >= 0 && slots.get(j).getRarity().ordinal() > currentRank) {
                 slots.set(j + 1, slots.get(j));
                 j--;
             }
@@ -193,43 +193,22 @@ public class Inventory {
         return sb.toString();
     }
 
+    // Låser flere slots op hvis amount er gyldig og der er plads til det
     public boolean buyInventorySlots(int amount) {
 
-        boolean b1 = false,b2 = false;
-
-
-        try {
-            if (amount <= 0) {
-                b1 = true;
-                throw new NegativeValues("Amount cannot be zero or negative");
-            }
-
-            if (unlockedSlots + amount > maxSlots) {
-                b2 = true;
-                return false;
-            }
-
-            unlockedSlots += amount;
-            return true;
-
-        } catch (NegativeValues e) {
-            System.err.println("You can't add negative slots!");
+        // ugyldigt køb
+        if (amount <= 0) {
+            return false;
         }
-        return false;
-    }
 
+        // kan ikke købe forbi max slots
+        if (unlockedSlots + amount > maxSlots) {
+            return false;
+        }
 
-    // Hjælpemetode til at omsætte rarity til et tal til sortering
-    private int rarityRank(String rarity) {
-        if (rarity == null) return 0;
-
-        return switch (rarity.toLowerCase()) {
-            case "common" -> 1;
-            case "uncommon" -> 2;
-            case "rare" -> 3;
-            case "epic" -> 4;
-            default -> 0;
-        };
+        // opdater unlocked slots
+        unlockedSlots += amount;
+        return true;
     }
 
     @Override

@@ -1,13 +1,9 @@
 package ui;
 
-import domain.Item;
-import domain.Player;
-import domain.Armour;
-import domain.Weapon;
+import domain.*;
 import exceptions.MaxWeightReached;
 import exceptions.NegativeValues;
 import service.InventoryService;
-import domain.Inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,94 +104,57 @@ public class Menu {
         System.out.print("Name: ");
         String name = input.nextLine();
 
-        // vælg type (kun gyldige domænetyper)
-        String type;
-        while (true) {
-            System.out.print("Type (Weapon/Armour/Consumable): ");
-            type = input.nextLine().trim();
-            if (type.equalsIgnoreCase("Weapon") ||
-                    type.equalsIgnoreCase("Armour") ||
-                    type.equalsIgnoreCase("Consumable")) {
-                break; // kun gyldige typer
-            }
-            System.out.println("Invalid type. Try again.");
-        }
+        ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
 
-        // vælg rarity og normaliser til stort begyndelsesbogstav
-        String rarity;
-        while (true) {
-            System.out.print("Rarity (Common/Uncommon/Rare/Epic): ");
-            rarity = input.nextLine().trim();
+        Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
 
-            if (rarity.equalsIgnoreCase("Common") ||
-                    rarity.equalsIgnoreCase("Uncommon") ||
-                    rarity.equalsIgnoreCase("Rare") ||
-                    rarity.equalsIgnoreCase("Epic")) {
-
-                rarity = capitalize(rarity);   // gør “common” til “Common”
-                break;
-            }
-
-            System.out.println("Invalid rarity. Try again.");
-        }
-
-        Inventory inventory = new Inventory();
         double weight;
         while (true) {
             System.out.print("Weight (must be > 0): ");
             weight = readDouble();
+
             try {
                 if (weight <= 0) {
                     throw new NegativeValues("Weight must be greater then 0");
                 }
 
-                double sum = weight + inventory.getTotalWeight();
-                if (sum > inventory.getMaxWeight()){
+                double sum = weight + service.getInventory().getTotalWeight();
+                if (sum > service.getInventory().getMaxWeight()) {
                     throw new MaxWeightReached("Cannot add item. Player is too heavy");
                 }
-                if (weight > 0) break;
+
+                break;
+
             } catch (NegativeValues e) {
                 System.out.println("Error: " + e.getMessage());
             } catch (MaxWeightReached e) {
                 System.out.println("Error" + e.getMessage());
             }
-
         }
-
 
         // subtype-felter (kun relevante felter fyldes ud afhængig af type)
         Integer damage = null;
-        String handType = null;
+        HandType handType = null;
         Integer defence = null;
-        String armourSlot = null;
+        ArmourSlot armourSlot = null;
         String effectType = null;
         Integer stackSize = null;
 
-        if (type.equalsIgnoreCase("Weapon")) {
+        if (type == ItemType.WEAPON) {
             System.out.print("Damage: ");
             damage = readInt();
 
-            while (true) {
-                System.out.print("Hand type (OneHand/OffHand/TwoHand): ");
-                handType = input.nextLine().trim();
-                if (handType.equalsIgnoreCase("OneHand") ||
-                        handType.equalsIgnoreCase("OffHand") ||
-                        handType.equalsIgnoreCase("TwoHand")) {
-                    break; // kendt håndtype
-                }
-                System.out.println("Invalid hand type. Try again.");
-            }
+            handType = readEnum(HandType.class, "Hand type (ONE_HAND/OFF_HAND/TWO_HAND): ");
         }
 
-        if (type.equalsIgnoreCase("Armour")) {
+        if (type == ItemType.ARMOUR) {
             System.out.print("Defence: ");
             defence = readInt();
 
-            System.out.print("Slot (Head/Chest/Legs/Feet): ");
-            armourSlot = input.nextLine().trim();
+            armourSlot = readEnum(ArmourSlot.class, "Slot (HEAD/CHEST/LEGS/FEET): ");
         }
 
-        if (type.equalsIgnoreCase("Consumable")) {
+        if (type == ItemType.CONSUMABLE) {
             System.out.print("Effect type: ");
             effectType = input.nextLine().trim();
 
@@ -383,45 +342,11 @@ public class Menu {
             int choice = readInt();
 
             switch (choice) {
-
-                case 1 -> {
-                    System.out.print("Text to search for: ");
-                    String text = input.nextLine();
-                    List<Item> results = service.searchByNameContains(text);
-                    printResults(results);
-                    pause();
-                }
-
-                case 2 -> {
-                    System.out.print("Type (Weapon/Armour/Consumable): ");
-                    String type = input.nextLine();
-                    List<Item> results = service.filterByType(type);
-                    printResults(results);
-                    pause();
-                }
-
-                case 3 -> {
-                    System.out.print("Min weight: ");
-                    double min = readDouble();
-                    System.out.print("Max weight: ");
-                    double max = readDouble();
-                    List<Item> results = service.filterByWeight(min, max);
-                    printResults(results);
-                    pause();
-                }
-
-                case 4 -> {
-                    System.out.print("Rarity (Common/Uncommon/Rare/Epic): ");
-                    String rarity = input.nextLine();
-                    List<Item> results = service.filterByRarity(rarity);
-                    printResults(results);
-                    pause();
-                }
-
-                case 5 -> {
-                    return; // tilbage til hovedmenu
-                }
-
+                case 1 -> handleSearchByNameContains();
+                case 2 -> handleFilterByType();
+                case 3 -> handleFilterByWeightRange();
+                case 4 -> handleFilterByRarity();
+                case 5 -> { return; }
                 default -> {
                     System.out.println("Invalid choice. Please enter a number between 1 and 5.");
                     pause();
@@ -568,8 +493,53 @@ public class Menu {
         System.out.println("-------------------------------------------------------------");
     }
 
-    private String capitalize(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    // Konverterer brugerinput til enum og håndterer ugyldigt input med try/catch
+    private <T extends Enum<T>> T readEnum(Class<T> enumType, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String text = input.nextLine().trim();
+
+            try {
+                return Enum.valueOf(enumType, text.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Try again.");
+            }
+        }
+    }
+
+    // Søgning på del af navn (case-insensitive)
+    private void handleSearchByNameContains() {
+        System.out.print("Text to search for: ");
+        String text = input.nextLine();
+        List<Item> results = service.searchByNameContains(text);
+        printResults(results);
+        pause();
+    }
+
+    // Filtrer items efter type
+    private void handleFilterByType() {
+        ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
+        List<Item> results = service.filterByType(type);
+        printResults(results);
+        pause();
+    }
+
+    // Filtrer items indenfor et vægt-interval
+    private void handleFilterByWeightRange() {
+        System.out.print("Min weight: ");
+        double min = readDouble();
+        System.out.print("Max weight: ");
+        double max = readDouble();
+        List<Item> results = service.filterByWeight(min, max);
+        printResults(results);
+        pause();
+    }
+
+    // Filtrer items efter rarity
+    private void handleFilterByRarity() {
+        Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
+        List<Item> results = service.filterByRarity(rarity);
+        printResults(results);
+        pause();
     }
 }

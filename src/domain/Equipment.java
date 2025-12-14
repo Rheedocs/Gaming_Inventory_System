@@ -14,17 +14,17 @@ public class Equipment {
     // Forsøger at equippe et våben i korrekt hånd
     public boolean equipWeapon(Weapon w) {
 
-        String hand = w.getHandtype();
+        HandType handType = w.getHandType();
 
         // TwoHand fylder begge hænder og rydder offhand
-        if (hand.equalsIgnoreCase("TwoHand")) {
+        if (handType == HandType.TWO_HAND) {
             mainHand = w;
             offHand = null;
             return true;
         }
 
         // OneHand prøver først mainHand, derefter OffHand
-        if (hand.equalsIgnoreCase("OneHand")) {
+        if (handType == HandType.ONE_HAND) {
             if (mainHand == null) {
                 mainHand = w;
                 return true;
@@ -37,7 +37,7 @@ public class Equipment {
         }
 
         // OffHand kan kun ligge i offHand
-        if (hand.equalsIgnoreCase("OffHand")) {
+        if (handType == HandType.OFF_HAND) {
             if (offHand == null) {
                 offHand = w;
                 return true;
@@ -48,48 +48,31 @@ public class Equipment {
         return false;
     }
 
-    // Sætter rustning i korrekt slot baseret på tekst (head/chest/legs/feet)
+    // Sætter rustning i korrekt slot
     public boolean equipArmour(Armour a) {
-        String s = a.getSlot();
 
-        switch (s.toLowerCase()) {
-            case "head" -> { head = a; return true; }
-            case "chest" -> { chest = a; return true; }
-            case "legs" -> { legs = a; return true; }
-            case "feet" -> { feet = a; return true; }
+        ArmourSlot slot = a.getSlot();
+
+        switch (slot) {
+            case HEAD -> { head = a; return true; }
+            case CHEST -> { chest = a; return true; }
+            case LEGS -> { legs = a; return true; }
+            case FEET -> { feet = a; return true; }
             default -> { return false; }
         }
     }
 
-    // Fjerner item fra valgt slot og returnerer det
+    // Fjerner item fra valgt slot og returnerer det (UI må gerne sende tekst)
     public Item unequip(String slot) {
         Item removed = null;
 
         switch (slot.toLowerCase()) {
-            case "mainhand" -> {
-                removed = mainHand;
-                mainHand = null;
-            }
-            case "offhand" -> {
-                removed = offHand;
-                offHand = null;
-            }
-            case "head" -> {
-                removed = head;
-                head = null;
-            }
-            case "chest" -> {
-                removed = chest;
-                chest = null;
-            }
-            case "legs" -> {
-                removed = legs;
-                legs = null;
-            }
-            case "feet" -> {
-                removed = feet;
-                feet = null;
-            }
+            case "mainhand" -> { removed = mainHand; mainHand = null; }
+            case "offhand" -> { removed = offHand; offHand = null; }
+            case "head" -> { removed = head; head = null; }
+            case "chest" -> { removed = chest; chest = null; }
+            case "legs" -> { removed = legs; legs = null; }
+            case "feet" -> { removed = feet; feet = null; }
         }
         return removed; // null hvis slot ukendt eller tomt
     }
