@@ -48,7 +48,7 @@ public class Equipment {
         return false;
     }
 
-    // Sætter rustning i korrekt slot
+    // Sætter rustning i korrekt slot (erstatter eksisterende armour i slottet)
     public boolean equipArmour(Armour a) {
 
         ArmourSlot slot = a.getSlot();

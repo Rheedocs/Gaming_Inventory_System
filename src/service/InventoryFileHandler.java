@@ -1,7 +1,6 @@
 package service;
 
 import domain.*;
-
 import java.io.*;
 import java.util.*;
 
@@ -9,7 +8,7 @@ import java.util.*;
 public class InventoryFileHandler {
 
     // Gemmer hele inventory-tilstanden til en tekstfil
-    public static void save(Inventory inventory, String path) {
+    public static boolean save(Inventory inventory, String path) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(path))) {
 
             // --- metadata om inventory (settings) ---
@@ -24,29 +23,30 @@ public class InventoryFileHandler {
             for (Item item : inventory.getItems()) {
 
                 if (item instanceof Weapon w) {
-                    writer.println("Weapon;name=" + w.getName()
+                    writer.println("WEAPON;name=" + w.getName()
                             + ";rarity=" + w.getRarity()
                             + ";weight=" + w.getWeight()
                             + ";damage=" + w.getDamage()
                             + ";hand=" + w.getHandType());
                 } else if (item instanceof Armour a) {
-                    writer.println("Armour;name=" + a.getName()
+                    writer.println("ARMOUR;name=" + a.getName()
                             + ";rarity=" + a.getRarity()
                             + ";weight=" + a.getWeight()
                             + ";defence=" + a.getDefence()
                             + ";slot=" + a.getSlot());
                 } else if (item instanceof Consumable c) {
-                    String effect = (c.getEffectType() != null) ? c.getEffectType() : "";
-                    writer.println("Consumable;name=" + c.getName()
+                    writer.println("CONSUMABLE;name=" + c.getName()
                             + ";rarity=" + c.getRarity()
                             + ";weight=" + c.getWeight()
-                            + ";effect=" + effect
+                            + ";effect=" + c.getEffectType()
                             + ";stack=" + c.getStackSize());
                 }
             }
 
+            return true;
+
         } catch (Exception e) {
-            System.out.println("Error saving file: " + e.getMessage());
+            return false;
         }
     }
 
@@ -61,44 +61,38 @@ public class InventoryFileHandler {
                 String line = scanner.nextLine().trim();
 
                 if (line.isEmpty() || line.startsWith("#")) {
-                    continue; // ignorer tomme linjer og kommentarer
+                    continue;      // ignorer tomme linjer og kommentarer
                 }
 
                 // --- metadata-linjer ---
                 if (line.startsWith("maxWeight=")) {
-                    inventory.setMaxWeight(Double.parseDouble(line.split("=", 2)[1]));
+                    inventory.setMaxWeight(Double.parseDouble(line.split("=")[1]));
                     continue;
                 }
                 if (line.startsWith("maxSlots=")) {
-                    inventory.setMaxSlots(Integer.parseInt(line.split("=", 2)[1]));
+                    inventory.setMaxSlots(Integer.parseInt(line.split("=")[1]));
                     continue;
                 }
                 if (line.startsWith("unlockedSlots=")) {
-                    inventory.setUnlockedSlots(Integer.parseInt(line.split("=", 2)[1]));
+                    inventory.setUnlockedSlots(Integer.parseInt(line.split("=")[1]));
                     continue;
                 }
 
                 // --- item-linjer ---
                 String[] parts = line.split(";");
-                String typeStr = parts[0];
+                ItemType type = ItemType.valueOf(normalizeEnum(parts[0]));
 
                 Map<String, String> map = new HashMap<>();
                 for (int i = 1; i < parts.length; i++) {
-                    String[] kv = parts[i].split("=", 2);
-                    String key = kv[0];
-                    String value = (kv.length > 1) ? kv[1] : "";
-                    map.put(key, value);
+                    String[] kv = parts[i].split("=");
+                    map.put(kv[0], kv[1]); // key/value fra fil
                 }
 
-                // parse enums fra fil (tolerant ift. gamle formater)
-                ItemType type = ItemType.valueOf(normalizeEnum(typeStr));
-                Rarity rarity = Rarity.valueOf(normalizeEnum(map.getOrDefault("rarity", "COMMON")));
+                Rarity rarity = Rarity.valueOf(normalizeEnum(map.get("rarity")));
 
                 switch (type) {
-
                     case WEAPON -> {
                         HandType handType = HandType.valueOf(normalizeEnum(map.getOrDefault("hand", "ONE_HAND")));
-
                         Weapon w = new Weapon(
                                 map.get("name"),
                                 rarity,
@@ -106,13 +100,10 @@ public class InventoryFileHandler {
                                 Integer.parseInt(map.get("damage")),
                                 handType
                         );
-
                         inventory.addItem(w);
                     }
-
                     case ARMOUR -> {
-                        ArmourSlot slot = ArmourSlot.valueOf(normalizeEnum(map.getOrDefault("slot", "CHEST")));
-
+                        ArmourSlot slot = ArmourSlot.valueOf(normalizeEnum(map.get("slot")));
                         Armour a = new Armour(
                                 map.get("name"),
                                 rarity,
@@ -120,21 +111,18 @@ public class InventoryFileHandler {
                                 Integer.parseInt(map.get("defence")),
                                 slot
                         );
-
                         inventory.addItem(a);
                     }
-
+                    // Consumable indeholder flere felter end konstruktøren,
+                    // derfor sættes effectType og stackSize efter oprettelse
                     case CONSUMABLE -> {
-                        int stack = Integer.parseInt(map.getOrDefault("stack", "1"));
-
                         Consumable c = new Consumable(
                                 map.get("name"),
                                 rarity,
                                 Double.parseDouble(map.get("weight")),
-                                stack
+                                Integer.parseInt(map.get("stack"))
                         );
-
-                        c.setEffectType(map.getOrDefault("effect", ""));
+                        c.setEffectType(map.get("effect"));
                         inventory.addItem(c);
                     }
                 }
@@ -143,18 +131,16 @@ public class InventoryFileHandler {
             return true;
 
         } catch (Exception e) {
-            System.out.println("Error loading file: " + e.getMessage());
             return false;
         }
     }
 
-    // Gør enum-parsing tolerant: "Common" -> "COMMON", "OneHand" -> "ONE_HAND", "two hand" -> "TWO_HAND"
+    // Gør enum-parsing tolerant: "Common" -> "COMMON", "two hand" -> "TWO_HAND"
     private static String normalizeEnum(String text) {
         if (text == null) return "";
         return text.trim()
                 .replace("-", "_")
                 .replace(" ", "_")
-                .replaceAll("([a-z])([A-Z])", "$1_$2")
                 .toUpperCase();
     }
 }

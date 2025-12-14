@@ -19,13 +19,15 @@ public class Menu {
     // ---------- Initialisering ----------
 
     public void start() {
+        System.out.println("Welcome to Legend of CodeCraft!");
+
         initPlayerAndService();
 
         boolean running = true;
 
         while (running) {
             printMainMenu();
-            int choice = readMenuChoice(1, 9);
+            int choice = readMenuChoice(1, 8);
             running = handleMainChoice(choice);
         }
 
@@ -34,7 +36,7 @@ public class Menu {
 
     private void initPlayerAndService() {
         // Opretter spiller og service-lag ud fra spillerens navn
-        System.out.print("Enter player name: ");
+        System.out.print("Please enter player name: ");
         String playerName = input.nextLine();
 
         player = new Player(playerName);
@@ -52,8 +54,7 @@ public class Menu {
         System.out.println("5.  Buy inventory slots");
         System.out.println("6.  Save inventory");
         System.out.println("7.  Load inventory from file");
-        System.out.println("8.  Show inventory");
-        System.out.println("9.  End");
+        System.out.println("8.  End");
         System.out.println("============ ---- ============");
     }
 
@@ -66,17 +67,16 @@ public class Menu {
             case 5 -> buySlotsMenu();
             case 6 -> saveInvToFile();
             case 7 -> loadInvFromFile();
-            case 8 -> { showInventory(); pause(); }
-            case 9 -> { return false; }
+            case 8 -> { return false; }
             default -> {
-                System.out.println("Invalid choice. Please enter a number between 1 and 9.");
+                System.out.println("Invalid choice. Please enter a number between 1 and 8.");
                 pause();
             }
         }
         return true;
     }
 
-    // ---------- sub menus ----------
+    // ---------- Sub menus ----------
 
     private void inventoryMenu() {
         while (true) {
@@ -86,7 +86,6 @@ public class Menu {
             System.out.println("3. Remove item from inventory");
             System.out.println("4. Sort items in inventory");
             System.out.println("5. Back");
-            System.out.print("Choose an option (1-5): ");
 
             int choice = readMenuChoice(1, 5);
 
@@ -107,7 +106,6 @@ public class Menu {
             System.out.println("2. Equip item from inventory");
             System.out.println("3. Unequip item");
             System.out.println("4. Back");
-            System.out.print("Choose an option (1-4): ");
 
             int choice = readMenuChoice(1, 4);
 
@@ -129,7 +127,6 @@ public class Menu {
             System.out.println("4. Filter by weight range");
             System.out.println("5. Filter by rarity");
             System.out.println("6. Back");
-            System.out.print("Choose an option (1-6): ");
 
             int choice = readMenuChoice(1, 6);
 
@@ -260,22 +257,38 @@ public class Menu {
         }
     }
 
-    // Lader spilleren vælge et item fra inventory og equippe det (kun Weapon/Armour).
     private void equipItem() {
+
         if (service.isInventoryEmpty()) {
             System.out.println("Inventory is empty.");
             pause();
             return;
         }
 
-        showInventory();
+        // UI-valg: Vi viser kun items der kan equips (Weapon/Armour),
+        // så brugeren ikke kan vælge ugyldige items som fx Consumables.
+        List<Item> equipables = new ArrayList<>();
+        for (Item i : service.getItems()) {
+            if (i instanceof Weapon || i instanceof Armour) {
+                equipables.add(i);
+            }
+        }
+
+        if (equipables.isEmpty()) {
+            System.out.println("No equippable items in inventory.");
+            pause();
+            return;
+        }
+
+        // Vis kun listen over equippable items (mere brugervenligt)
+        printResults(equipables);
 
         while (true) {
             System.out.print("Item you want to equip (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
             if (name.equalsIgnoreCase("exit")) {
-                return; // go back to menu
+                return;
             }
             if (name.isBlank()) {
                 continue;
@@ -288,10 +301,9 @@ public class Menu {
                 continue;
             }
 
-            // Kun Weapon og Armour må equips
+            // Sikkerhedstjek (hvis brugeren skriver et navn på et ikke-equippable item)
             if (!(item instanceof Weapon || item instanceof Armour)) {
-                System.out.println("This item cannot be equipped.");
-                pause();
+                System.out.println("Item cannot be equipped.");
                 continue;
             }
 
@@ -393,7 +405,6 @@ public class Menu {
         System.out.println("2. Weight");
         System.out.println("3. Type");
         System.out.println("4. Rarity");
-        System.out.print("Choose an option (1-4): ");
 
         int choice = readMenuChoice(1, 4);
 
@@ -412,7 +423,13 @@ public class Menu {
         System.out.print("Filename to save to (e.g. inventoryLog.txt): ");
         String name = input.nextLine();
 
-        service.save(name);
+        boolean ok = service.save(name);
+
+        if (ok) {
+            System.out.println("Inventory has been saved!");
+        } else {
+            System.out.println("Could not save inventory (invalid path or write error).");
+        }
         pause();
     }
 
@@ -492,6 +509,8 @@ public class Menu {
 
     // ---------- ui hjælpemetoder ----------
 
+    // Læser et gyldigt menuvalg mellem min og max (bruges af både hoved- og undermenuer)
+    @SuppressWarnings("SameParameterValue")
     private int readMenuChoice(int min, int max) {
         int choice;
 

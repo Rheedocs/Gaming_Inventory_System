@@ -1,7 +1,5 @@
 package app;
 
-
-import domain.Inventory;
 import ui.Menu;
 
 // Indgang til programmet. Starter UI-laget (Menu), som styrer resten af systemet.

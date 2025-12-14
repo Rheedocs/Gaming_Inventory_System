@@ -102,33 +102,32 @@ public class InventoryService {
         }
     }
 
-    // Bruger et consumable. Håndterer stackSize, så kun sidste item fjerner hele objektet.
+    // Bruger et consumable og håndterer stack-logik.
+// Tjekker med instanceof for at sikre korrekt type før cast.
     public String useConsumable(String name) {
 
-        // find itemet i inventory
         Item item = inventory.findItemByName(name);
 
         if (item == null) {
             return "Could not use consumable. Item not found.";
         }
 
-        // tjek om det faktisk er et consumable
-        if (item.getType() != ItemType.CONSUMABLE) {
+        // Sikrer at item faktisk er et Consumable
+        if (!(item instanceof Consumable c)) {
             return "Item is not a consumable.";
         }
 
-        Consumable c = (Consumable) item;
         int currentStack = c.getStackSize();
 
-        // hvis der er flere end 1 i stacken → reducer stackSize
+        // Reducerer stack hvis der er flere tilbage
         if (currentStack > 1) {
             c.setStackSize(currentStack - 1);
         } else {
-            // sidste item i stacken → fjern helt fra inventory
+            // Sidste i stacken fjernes helt fra inventory
             inventory.removeItem(c);
         }
 
-        // feedback til brugeren
+        // Feedback til brugeren
         String effect = c.getEffectType();
         String message = "Used consumable: " + c.getName();
 
@@ -136,7 +135,6 @@ public class InventoryService {
             message += " (" + effect + ")";
         }
 
-        // hvis der stadig er nogen tilbage i stack
         if (c.getStackSize() > 0) {
             message += " | Remaining in stack: " + c.getStackSize();
         }
@@ -144,30 +142,45 @@ public class InventoryService {
         return message;
     }
 
-    // sender equip-ønske videre til Player.Equipment
+    // Equipper et item og fjerner det fra inventory hvis equip lykkes.
+    // Flytter altså item fra Inventory -> Equipment.
     public String equip(Item item) {
+
         if (item instanceof Weapon w) {
             boolean ok = player.getEquipment().equipWeapon(w);
-            return ok ? "Equipped weapon: " + w.getName()
-                    : "Cannot equip weapon. Hands full.";
+
+            if (ok) {
+                inventory.removeItem(w);
+                return "Equipped weapon: " + w.getName();
+            }
+            return "Cannot equip weapon. Hands full.";
         }
 
         if (item instanceof Armour a) {
             boolean ok = player.getEquipment().equipArmour(a);
-            return ok ? "Equipped armour: " + a.getName()
-                    : "Cannot equip armour. Invalid slot.";
+
+            if (ok) {
+                inventory.removeItem(a);
+                return "Equipped armour: " + a.getName();
+            }
+            return "Cannot equip armour. Invalid slot.";
         }
 
         return "Item cannot be equipped.";
     }
 
+    // Unequipper et item og lægger det tilbage i inventory.
+    // Flytter altså item fra Equipment -> Inventory.
     public String unequip(String slot) {
+
         Item removed = player.getEquipment().unequip(slot);
+
         if (removed != null) {
+            inventory.addItem(removed);
             return "Unequipped " + removed.getName() + " from " + slot;
-        } else {
-            return "Nothing equipped in " + slot + ".";
         }
+
+        return "Nothing equipped in " + slot + ".";
     }
 
     public void sortByName() {
@@ -187,16 +200,22 @@ public class InventoryService {
         inventory.sortByRarity();
     }
 
-    public void save(String path) {
-        InventoryFileHandler.save(inventory, path); // filformat håndteres ét sted
+    public boolean save(String path) {
+        return InventoryFileHandler.save(inventory, path);
     }
 
     public boolean load(String path) {
         return InventoryFileHandler.load(inventory, path);
     }
 
-    // finder alle items som matcher del af navn (case-insensitive)
+    // Finder alle items hvor navnet indeholder søgeteksten (case-insensitive).
+// Tomt eller blank input returnerer en tom liste.
     public List<Item> searchByNameContains(String text) {
+
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
+        }
+
         text = text.toLowerCase();
         List<Item> results = new ArrayList<>();
 
