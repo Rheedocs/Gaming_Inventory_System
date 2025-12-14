@@ -1,8 +1,6 @@
 package ui;
 
 import domain.*;
-import exceptions.MaxWeightReached;
-import exceptions.NegativeValues;
 import service.InventoryService;
 
 import java.util.ArrayList;
@@ -101,35 +99,44 @@ public class Menu {
     }
 
     private void addItem() {
+
+        if (service.getInventory().getTotalWeight() >= service.getInventory().getMaxWeight()) {
+            System.out.println("Inventory is full (weight: " + service.getInventory().getTotalWeight()
+                    + " / " + service.getInventory().getMaxWeight() + ").");
+            pause();
+            return;
+        }
+
         System.out.print("Name: ");
-        String name = input.nextLine();
+        String name = input.nextLine().trim();
+
+        while (name.isBlank()) {
+            System.out.print("Name: ");
+            name = input.nextLine().trim();
+        }
 
         ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
 
         Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
 
         double weight;
+
         while (true) {
             System.out.print("Weight (must be > 0): ");
             weight = readDouble();
 
-            try {
-                if (weight <= 0) {
-                    throw new NegativeValues("Weight must be greater then 0");
-                }
-
-                double sum = weight + service.getInventory().getTotalWeight();
-                if (sum > service.getInventory().getMaxWeight()) {
-                    throw new MaxWeightReached("Cannot add item. Player is too heavy");
-                }
-
-                break;
-
-            } catch (NegativeValues e) {
-                System.out.println("Error: " + e.getMessage());
-            } catch (MaxWeightReached e) {
-                System.out.println("Error" + e.getMessage());
+            if (weight <= 0) {
+                System.out.println("Error: Weight must be greater then 0");
+                continue;
             }
+
+            double sum = weight + service.getInventory().getTotalWeight();
+            if (sum > service.getInventory().getMaxWeight()) {
+                System.out.println("Error: Cannot add item. Player is too heavy");
+                continue;
+            }
+
+            break;
         }
 
         // subtype-felter (kun relevante felter fyldes ud afhængig af type)
@@ -141,16 +148,12 @@ public class Menu {
         Integer stackSize = null;
 
         if (type == ItemType.WEAPON) {
-            System.out.print("Damage: ");
-            damage = readInt();
-
+            damage = readIntMin(0, "Damage: ");
             handType = readEnum(HandType.class, "Hand type (ONE_HAND/OFF_HAND/TWO_HAND): ");
         }
 
         if (type == ItemType.ARMOUR) {
-            System.out.print("Defence: ");
-            defence = readInt();
-
+            defence = readIntMin(0, "Defence: ");
             armourSlot = readEnum(ArmourSlot.class, "Slot (HEAD/CHEST/LEGS/FEET): ");
         }
 
@@ -158,8 +161,7 @@ public class Menu {
             System.out.print("Effect type: ");
             effectType = input.nextLine().trim();
 
-            System.out.print("Stack size: ");
-            stackSize = readInt();
+            stackSize = readIntMin(1, "Stack size: ");
         }
 
         String result = service.addItem(
@@ -219,6 +221,9 @@ public class Menu {
 
             if (name.equalsIgnoreCase("exit")) {
                 return; // go back to menu
+            }
+            if (name.isBlank()) {
+                continue;
             }
 
             Item item = service.findItemByName(name);
@@ -296,6 +301,9 @@ public class Menu {
 
             if (name.equalsIgnoreCase("exit")) {
                 return;
+            }
+            if (name.isBlank()) {
+                continue;
             }
 
             String result = service.useConsumable(name);
@@ -426,13 +434,10 @@ public class Menu {
             if (success) {
                 System.out.println("Slots successfully unlocked.");
                 pause();
-                return; // færdig, tilbage til menu
+                return;
             }
-            if (!success) {
-                System.out.println("Could not buy slots. Amount must be > 0 and not exceed max slots.");
-                pause();
-            }
-
+            System.out.println("Could not buy slots. Amount must be > 0 and not exceed max slots.");
+            pause();
             // og så kører while videre, så de kan prøve igen
         }
     }
@@ -500,7 +505,13 @@ public class Menu {
             String text = input.nextLine().trim();
 
             try {
-                return Enum.valueOf(enumType, text.toUpperCase());
+                String normalized = text
+                        .toUpperCase()
+                        .replace(' ', '_')
+                        .replace('-', '_');
+
+                return Enum.valueOf(enumType, normalized);
+
             } catch (IllegalArgumentException e) {
                 System.out.println("Invalid input. Try again.");
             }
@@ -541,5 +552,14 @@ public class Menu {
         List<Item> results = service.filterByRarity(rarity);
         printResults(results);
         pause();
+    }
+
+    private int readIntMin(int min, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            int value = readInt();
+            if (value >= min) return value;
+            System.out.println("Error: Value must be at least " + min);
+        }
     }
 }

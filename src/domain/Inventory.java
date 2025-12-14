@@ -34,7 +34,11 @@ public class Inventory {
         return maxWeight;
     }
 
-    public void setMaxWeight(double maxWeight) throws NegativeValues {this.maxWeight = maxWeight;
+    public void setMaxWeight (double maxWeight) throws NegativeValues {
+        if (maxWeight < 0) {
+            throw new NegativeValues("Max weight cannot be negative.");
+        }
+        this.maxWeight = maxWeight;
     }
 
     public int getMaxSlots() {
