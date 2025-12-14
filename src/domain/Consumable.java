@@ -26,4 +26,15 @@ public class Consumable extends Item {
     public void setStackSize(int stackSize) {
         this.stackSize = stackSize;
     }
+
+    @Override
+    public String toString() {
+        String effect = (effectType != null) ? effectType : "None";
+        return "Name: " + getName() +
+                ", Type: " + getType() +
+                ", Rarity: " + getRarity() +
+                ", Weight: " + getWeight() +
+                ", Effect: " + effect +
+                ", StackSize: " + stackSize;
+    }
 }

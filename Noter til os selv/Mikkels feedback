@@ -50,7 +50,7 @@ Mulige forbedringer (best practice):
         -Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
          hvad der skal udskrives
 
-    [ ] Lange metoder i Menu:
+    [x] Lange metoder i Menu:
         -Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
         -Hint:
             -Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu

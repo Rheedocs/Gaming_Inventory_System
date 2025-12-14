@@ -1,0 +1,10 @@
+# Inventory settings
+maxWeight=50.0
+maxSlots=192
+unlockedSlots=62
+
+# Items
+Weapon;name=-1;rarity=COMMON;weight=1.0;damage=-1;hand=ONE_HAND
+Consumable;name=test3;rarity=RARE;weight=1.0;effect=healingtest;stack=9
+Armour;name=as;rarity=EPIC;weight=10.0;defence=2;slot=FEET
+Armour;name=teest4;rarity=EPIC;weight=30.0;defence=30;slot=CHEST

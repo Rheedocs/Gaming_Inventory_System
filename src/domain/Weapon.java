@@ -27,4 +27,14 @@ public class Weapon extends Item {
     public void setHandType(HandType handType) {
         this.handType = handType;
     }
+
+    @Override
+    public String toString() {
+        return "Name: " + getName() +
+                ", Type: " + getType() +
+                ", Rarity: " + getRarity() +
+                ", Weight: " + getWeight() +
+                ", Damage: " + damage +
+                ", HandType: " + handType;
+    }
 }

@@ -27,4 +27,14 @@ public class Armour extends Item {
     public void setSlot(ArmourSlot slot) {
         this.slot = slot;
     }
+
+    @Override
+    public String toString() {
+        return "Name: " + getName() +
+                ", Type: " + getType() +
+                ", Rarity: " + getRarity() +
+                ", Weight: " + getWeight() +
+                ", Defence: " + defence +
+                ", Slot: " + slot;
+    }
 }
