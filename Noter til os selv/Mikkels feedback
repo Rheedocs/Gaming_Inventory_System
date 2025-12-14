@@ -1,4 +1,4 @@
-Mikkel - læres
+Mikkel - læres feedback
 OOP evaluering af koden
 
 Her er lidt feedback og lidt hints til hvordan i kan inkorporere temaerne.  I behøver ikke have alt med –
@@ -13,6 +13,7 @@ Stærke sider:
         -service: InventoryService, InventoryFileHandler
         -ui: Menu
         -exceptions: NegativeValues, MaxWeightReached, ItemNotFound
+
     God brug af OOP:
         -Arv: Weapon, Armour og Consumable nedarver fra Item
         -Komposition: Player har Inventory og Equipment
@@ -20,11 +21,13 @@ Stærke sider:
             -Felter er private
             -I bruger getters og setters fint
             -Inventory returnerer en unmodifiableList i getItems, så UI ikke kan ændre på slots direkte
+
     God separering af ansvar:
         -Inventory håndterer vægt, slots, stacking og sortering
         -Equipment håndterer hvad der er equippet i hænder og rustningsslots
         -InventoryFileHandler tager sig af filformat og I/O
         -Menu står for al brugerinteraktion og bruger InventoryService som mellemled
+
     Fejlhåndtering:
         -Menu har egne metoder til at læse tal med try catch og giver pæn fejlbesked ved forkert input
         -InventoryFileHandler bruger try with resources ved filskrivning og håndterer exceptions
@@ -38,14 +41,17 @@ Mulige forbedringer (best practice):
         Hint:
             -Overvej at samle dem som konstante værdier et sted
             -Eller på sigt bruge enums til type, rarity, slot, handtype
+
     Ansvarsfordeling og udskrivning:
         -Nogle domain klasser skriver direkte til System.out, fx Inventory.buyInventorySlots
         -Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
          hvad der skal udskrives
+
     Lange metoder i Menu:
         -Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
         -Hint:
             -Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu
+
     Brug af egne exceptions:
         -I har lavet NegativeValues, MaxWeightReached og ItemNotFound, men de bliver endnu ikke brugt i
          domain eller service
