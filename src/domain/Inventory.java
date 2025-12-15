@@ -1,5 +1,7 @@
 package domain;
 
+import exceptions.ItemNotFound;
+import exceptions.MaxWeightReached;
 import exceptions.NegativeValues;
 
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ public class Inventory {
         return maxWeight;
     }
 
-    public void setMaxWeight(double maxWeight) throws NegativeValues {
+    public void setMaxWeight(double maxWeight) {
+        // Domain-validering: negativ maxWeight giver ikke mening
         if (maxWeight < 0) {
             throw new NegativeValues("Max weight cannot be negative.");
         }
@@ -78,6 +81,9 @@ public class Inventory {
 
     // --- core logik: add / remove / find ---
 
+    // Forsøger at tilføje et item til inventory.
+    // Domain er ansvarlig for at håndhæve vægt- og kapacitetsregler.
+    // Ved overskridelse af maxWeight kastes en exception (fejlhåndtering via exceptions).
     public boolean addItem(Item item) {
 
         // stacking for consumables med samme navn (lægger stackSize sammen)
@@ -89,7 +95,8 @@ public class Inventory {
 
             // hvis vægtgrænse overskrides, må vi ikke stack
             if (getTotalWeight() + addedWeight > maxWeight) {
-                return false;
+                // Max weight overskredet -> domain exception (ikke bare status)
+                throw new MaxWeightReached("Max weight exceeded.");
             }
 
             for (Item existing : slots) {
@@ -104,6 +111,8 @@ public class Inventory {
 
         // tjek for slots og maxWeight for nye items
         if (slots.size() >= unlockedSlots) {
+            // Inventory er fuldt (slots).
+            // Dette håndteres som en normal tilstand via return-værdi.
             return false;
         }
 
@@ -114,7 +123,8 @@ public class Inventory {
         }
 
         if (getTotalWeight() + itemWeight > maxWeight) {
-            return false;
+            // Max weight overskredet -> domain exception
+            throw new MaxWeightReached("Max weight exceeded.");
         }
 
         slots.add(item);
@@ -132,6 +142,17 @@ public class Inventory {
             }
         }
         return null;
+    }
+
+    // Finder et item ud fra navn.
+    // Hvis item ikke findes, kastes ItemNotFound.
+    // På den måde slipper service og UI for null-checks.
+    public Item requireItemByName(String name) throws ItemNotFound {
+        Item item = findItemByName(name);
+        if (item == null) {
+            throw new ItemNotFound("Item not found: " + name);
+        }
+        return item;
     }
 
     public boolean isEmpty() {

@@ -2,6 +2,7 @@ package domain;
 
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+import exceptions.NegativeValues;
 
 // Repræsenterer forbrugsitems (potions mv.) med effekt og stackSize.
 public class Consumable extends Item {
@@ -11,7 +12,10 @@ public class Consumable extends Item {
 
     public Consumable(String name, Rarity rarity, double weight, int stackSize) {
         super(name, ItemType.CONSUMABLE, rarity, weight);
-        this.stackSize = stackSize;
+
+        // Validerer data i domain-laget.
+        // Stack size må ikke være mindre end 1.
+        setStackSize(stackSize);
     }
 
     public String getEffectType() {
@@ -26,7 +30,12 @@ public class Consumable extends Item {
         return stackSize;
     }
 
+    // Beskytter domain mod ugyldige værdier.
+    // Fejlen håndteres videre oppe i service-laget.
     public void setStackSize(int stackSize) {
+        if (stackSize < 1) {
+            throw new NegativeValues("Stack size must be at least 1.");
+        }
         this.stackSize = stackSize;
     }
 

@@ -36,3 +36,124 @@ Notater og tjekliste vi skriver til os selv, som vi skriver når vi koder og tes
 
 - Måske lav programmet til et executable program, så det kan køres uden for inteliJ
 - Add item tjekker ikke max vægten
+
+EXCEPTIONS – IMPLEMENTERING (klar til at kode)
+
+Mål:
+- Domain kaster exceptions (Tema 9/10)
+- Service fanger og oversætter til tekst
+- UI printer kun resultat
+
+--------------------------------------------
+A) NegativeValues i domain (valider data ved kilden)
+
+1) Item.java
+- Importer exceptions.NegativeValues
+- Valider i constructor + setWeight (evt. også name/rarity/type hvis I vil)
+
+Eksempel:
+
+// domain/Item.java
+import exceptions.NegativeValues;
+
+public Item(String name, ItemType type, Rarity rarity, double weight) {
+    if (weight <= 0) throw new NegativeValues("Weight must be > 0");
+    this.name = name;
+    this.type = type;
+    this.rarity = rarity;
+    this.weight = weight;
+}
+
+public void setWeight(double weight) {
+    if (weight <= 0) throw new NegativeValues("Weight must be > 0");
+    this.weight = weight;
+}
+
+(Det passer direkte ind, fordi setWeight i dag ikke validerer)  :contentReference[oaicite:1]{index=1}
+
+2) Weapon / Armour / Consumable setters (hurtig gevinst)
+- Weapon.setDamage: damage >= 0
+- Armour.setDefence: defence >= 0
+- Consumable.setStackSize: stackSize >= 1
+
+I kan holde det simpelt: kun de 3 setters.
+
+--------------------------------------------
+B) MaxWeightReached i Inventory.addItem (vægt-overløb = exception)
+
+Lige nu returnerer Inventory.addItem false ved vægt-overløb. :contentReference[oaicite:2]{index=2}
+Vi ændrer kun vægt-cases til exception (slot-full kan blive boolean, hvis I vil).
+
+1) Inventory.java
+- Importer exceptions.MaxWeightReached
+- Kast exception i de 2 vægt-tjek:
+
+// domain/Inventory.java
+import exceptions.MaxWeightReached;
+
+... stacking-case:
+if (getTotalWeight() + addedWeight > maxWeight) {
+    throw new MaxWeightReached("Max weight exceeded (" + maxWeight + " kg)");
+}
+
+... normal item-case:
+if (getTotalWeight() + itemWeight > maxWeight) {
+    throw new MaxWeightReached("Max weight exceeded (" + maxWeight + " kg)");
+}
+
+Det matcher præcis jeres nuværende vægt-logik og placering. :contentReference[oaicite:3]{index=3}
+
+Behold slot-check som boolean:
+if (slots.size() >= unlockedSlots) return false;
+
+--------------------------------------------
+C) ItemNotFound i flows hvor I i dag returnerer “not found”
+
+I service bruger I findItemByName og returnerer tekst, når item er null. :contentReference[oaicite:4]{index=4}
+For at få Tema 9/10 rent, skal domain kaste ItemNotFound.
+
+Minimal løsning: lav 2 domain-metoder i Inventory:
+
+1) Inventory.removeItemByName(String name) throws ItemNotFound
+- Finder item
+- Hvis null: throw new ItemNotFound(...)
+- Ellers remove og returner true
+
+2) Inventory.getConsumableByName(String name) throws ItemNotFound
+- Finder item
+- Hvis null: throw new ItemNotFound(...)
+- Ellers returner item (service kan stadig tjekke instanceof)
+
+(Det er meget lidt ny kode, men giver jer “domain kaster, service fanger”-kæden.)
+
+--------------------------------------------
+D) Fang i InventoryService (oversæt exceptions til beskeder)
+
+Jeres InventoryService.addItem kalder inventory.addItem(item) og mapper boolean til tekst. :contentReference[oaicite:5]{index=5}
+Når Inventory begynder at kaste exceptions, skal service fange dem:
+
+// service/InventoryService.java
+try {
+    boolean added = inventory.addItem(item);  // kan nu kaste MaxWeightReached / NegativeValues
+    return added
+        ? "Item has been added to the inventory!"
+        : "Item could not be added. Inventory is full."; // slot-full
+} catch (NegativeValues e) {
+    return e.getMessage();
+} catch (MaxWeightReached e) {
+    return e.getMessage();
+}
+
+Samme idé kan bruges i remove/use:
+- catch (ItemNotFound e) -> return e.getMessage();
+
+--------------------------------------------
+E) UI (Menu) skal næsten ikke røres
+
+Menu kalder service og printer result. Det er allerede jeres mønster. :contentReference[oaicite:6]{index=6}
+Så I får Tema 9/10 uden at putte try/catch i UI.
+
+--------------------------------------------
+Anbefalet “eksamens-flow” at pege på:
+Menu.addItem -> InventoryService.addItem -> Inventory.addItem -> MaxWeightReached -> Service catch -> UI printer
+(Mikkel foreslår netop at vælge “tilføj item” som det sammenhængende eksempel) :contentReference[oaicite:7]{index=7}

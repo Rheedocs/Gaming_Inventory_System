@@ -2,8 +2,10 @@ package domain;
 
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+import exceptions.NegativeValues;
 
-// Grundlæggende item i systemet. Weapon, Armour og Consumable nedarver fra denne.
+// Grundlæggende item i systemet.
+// Weapon, Armour og Consumable nedarver fra denne.
 public class Item {
 
     private String name;
@@ -15,14 +17,18 @@ public class Item {
         this.name = name;
         this.type = type;
         this.rarity = rarity;
-        this.weight = weight;
+
+        // Validerer data i domain-laget.
+        // Domain må aldrig tillade ugyldige tilstande (fx negativ/0 vægt).
+        // Derfor kastes en custom exception ved ugyldigt input.
+        setWeight(weight); // validerer
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) { // simpelt navne skift
+    public void setName(String name) { // simpelt navneskift
         this.name = name;
     }
 
@@ -46,7 +52,12 @@ public class Item {
         return weight;
     }
 
+    // Beskytter domain mod ugyldige værdier.
+    // Fejlen håndteres videre oppe i service-laget.
     public void setWeight(double weight) {
+        if (weight <= 0) {
+            throw new NegativeValues("Weight must be > 0.");
+        }
         this.weight = weight;
     }
 

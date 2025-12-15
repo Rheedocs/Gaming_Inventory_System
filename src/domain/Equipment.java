@@ -82,47 +82,36 @@ public class Equipment {
 
     // Bruges kun som rollback hvis inventory ikke kan tage imod (full/weight limit).
     // Vi sætter direkte tilbage i samme slot, uden at køre normal equip-regler.
-    public boolean restoreToSlot(String slot, Item item) {
-        if (slot == null || item == null) return false;
+    public void restoreToSlot(String slot, Item item) {
+        if (slot == null || item == null) return;
 
         switch (slot.toLowerCase()) {
             case "mainhand" -> {
-                if (item instanceof Weapon w) { mainHand = w; return true; }
-                return false;
+                if (item instanceof Weapon w) { mainHand = w;
+                }
             }
             case "offhand" -> {
-                if (item instanceof Weapon w) { offHand = w; return true; }
-                return false;
+                if (item instanceof Weapon w) { offHand = w;
+                }
             }
             case "head" -> {
-                if (item instanceof Armour a) { head = a; return true; }
-                return false;
+                if (item instanceof Armour a) { head = a;
+                }
             }
             case "chest" -> {
-                if (item instanceof Armour a) { chest = a; return true; }
-                return false;
+                if (item instanceof Armour a) { chest = a;
+                }
             }
             case "legs" -> {
-                if (item instanceof Armour a) { legs = a; return true; }
-                return false;
+                if (item instanceof Armour a) { legs = a;
+                }
             }
             case "feet" -> {
-                if (item instanceof Armour a) { feet = a; return true; }
-                return false;
+                if (item instanceof Armour a) { feet = a;
+                }
             }
         }
 
-        return false;
-    }
-
-    public String getOverview() {
-        return
-                "MainHand: " + (mainHand != null ? mainHand.getName() : "-") + "\n" +
-                        "OffHand: " + (offHand != null ? offHand.getName() : "-") + "\n" +
-                        "Head: " + (head != null ? head.getName() : "-") + "\n" +
-                        "Chest: " + (chest != null ? chest.getName() : "-") + "\n" +
-                        "Legs: " + (legs != null ? legs.getName() : "-") + "\n" +
-                        "Feet: " + (feet != null ? feet.getName() : "-");
     }
 
     public boolean isEmpty() {

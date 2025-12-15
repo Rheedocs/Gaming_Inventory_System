@@ -1,5 +1,9 @@
-[ ] = ikke rettede/tilføjede
+[ ] = ikke rettede/tilføjede (eller have med som overvejelser til eksamen)
 [x] = rettede/tilføjede
+[/] = delvist ordnet/underpunkter mangler
+- = under punkter
+* = ordnet under punkter
+// kommentar til hvad vi har gjort ved punkterne
 
 Mikkel - lærens feedback
 OOP evaluering af koden
@@ -45,24 +49,34 @@ Mulige forbedringer (best practice):
             -Overvej at samle dem som konstante værdier et sted
             -Eller på sigt bruge enums til type, rarity, slot, handtype
 
+        // erstattet strings med enums (ItemType, Rarity, ArmourSlot, HandType)
+
     [x] Ansvarsfordeling og udskrivning:
         -Nogle domain klasser skriver direkte til System.out, fx Inventory.buyInventorySlots
         -Bedre praksis er at lade domain returnere en værdi (boolean eller status) og lade Menu beslutte,
          hvad der skal udskrives
+
+        // domain returnerer status/boolean, UI står for al output
 
     [x] Lange metoder i Menu:
         -Menu er forståelig, men der er risiko for at menu håndtering og logik blandes sammen
         -Hint:
             -Del menuen op i mindre metoder pr. funktion, fx showInventoryMenu, handleSearchMenu, handleEquipMenu
 
-    [ ] Brug af egne exceptions:
+        // Menu opdelt i mindre metoder pr. funktion (inventoryMenu, searchMenu, equipItem m.fl.)
+
+    [x] Brug af egne exceptions:
         -I har lavet NegativeValues, MaxWeightReached og ItemNotFound, men de bliver endnu ikke brugt i
          domain eller service
         -Der ligger en oplagt mulighed for at vise Tema 9 og 10 meget tydeligt ved at integrere dem i
          Inventory og InventoryService
 
+        // custom exceptions integreret i domain og håndteret i service (Tema 9/10)
+
+-----------------------------------------------------------------------------------------------------------------------
 Nedenfor kommer forslag til, hvad de kan tilføje eller fremhæve for hvert tema:
 
+TEMAER (Valgfri men godt at have med som overvejelser som min.)
 -----------------------------------------------------------------------------------------------------------------------
 Tema 1 grundlæggende programmeringsprincipper:
 -----------------------------------------------------------------------------------------------------------------------
@@ -73,17 +87,22 @@ I har allerede:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser og vinkler:
 
-    [ ] Variabler og datatyper:
+    [/] Variabler og datatyper:
         -Lav et sted, hvor I bevidst sammenligner forskellige datatyper
             -fx totalWeight som double vs et heltalsantal af items
         -Overvej at tilføje en simpel price variabel til Item eller Weapon for at kunne vise int, double og måske
          cast mellem dem
 
-    [ ] Tildeling og operatorer:
+         // datatyper bruges konsekvent, men ingen bevidst sammenligning eller price-variabel
+
+
+    [/] Tildeling og operatorer:
         Gør en beregning lidt mere synlig, fx:
             -totalWeight += item.getWeight
             -unlockedSlots += amount
         - I kan lave en simpel metode, der beregner samlet damage eller samlet defence og bruger +, -, * i udregningen
+
+        // operatorer bruges i logik, men ikke fremhævet som selvstændigt tema-eksempel
 
     [x] Simple tests af programmet:
         Lav en lille testmetode eller en separat testklasse, hvor I:
@@ -93,6 +112,9 @@ Mulige tilføjelser og vinkler:
         Hint til eksamen:
             -Vis at I kan “teste” ved at køre programmet med kendte værdier og argumentere for, at output stemmer
              med forventningen
+
+        // testkørsler med kendte værdier og forventet vs faktisk output
+
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 2 kontrolstrukturer i Java
@@ -108,11 +130,15 @@ Mulige tilføjelser:
         -Lav et eksempel, hvor det er oplagt at vælge switch frem for flere if else, fx på item type eller rarity
         -I kan også vise begge dele i koden samme sted og selv vælge den mest læsbare løsning
 
+        // switch brugt ved menuvalg og item-type, if/else hvor mest læsbart
+
     [x] Logiske operatorer:
         Tilføj et par steder med && og ||:
             -fx når I tjekker om et item kan tilføjes
                 -både vægtgrænse og slots skal være i orden
                 -eller: hvis enten inventory er tomt eller equipment er tomt, gør noget særligt
+
+        // && og || brugt ved tjek af vægt, slots og tomme inventories
 
     [x] Løkker:
         I bruger allerede for loops og for each
@@ -121,6 +147,8 @@ Mulige tilføjelser:
             -Eventuelt en do while et sted, hvor man altid vil spørge mindst én gang
         -Vis tydeligt i en kommentar, hvad stopbetingelsen er (fast antal iterations vs afhængig af brugerinput
          eller liste størrelse)
+
+         // for/for-each i domain, while-loops i Menu til valideret input
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 3 funktioner og metoder
@@ -134,11 +162,15 @@ Mulige tilføjelser og pointer:
             -en metode der kun tæller, hvor mange våben der er i inventory
             -en metode der kun printer en pæn overskrift
 
+        // mange små hjælpe-metoder for klar opdeling af ansvar
+
     [x] Parametre og returværdier:
         Lav mindst én metode i Inventory eller InventoryService der:
             -tager et simpelt parameter (fx rarity som String)
             -returnerer en samling eller et tal (fx antal items med den rarity)
         I kan bruge den metode både til logik og til at vise, hvordan data “rejser” gennem systemet
+
+        // metoder med parametre og returværdier (filter, search, sort)
 
     [ ] Scope og evt overloading
         Gør jer bevidste om forskellen på lokale variabler i metoder og felter i klassen:
@@ -175,6 +207,8 @@ Mulige tilføjelser:
             -at ArrayList er nem at tilføje og fjerne fra
             -at HashMap er hurtig til opslag på nøgle, men ikke har rækkefølge
 
+        // kommentarer om ArrayList, arrays og HashMap (styrker/svagheder)
+
 -----------------------------------------------------------------------------------------------------------------------
 Tema 5 sortering og algoritmer
 -----------------------------------------------------------------------------------------------------------------------
@@ -187,6 +221,8 @@ Mulige tilføjelser:
         -Lav en meget lille metode der sorterer et array af tal eller et array af navne med en enkel algoritme
             -fx Bubble Sort
 
+        // egen sortering implementeret ud over Collections.sort
+
 -----------------------------------------------------------------------------------------------------------------------
 Tema 6 objektorienteret programmering
 -----------------------------------------------------------------------------------------------------------------------
@@ -198,13 +234,19 @@ Mulige tilføjelser og pointer:
         -Player, Inventory, Equipment, Item og underklasserne er gode eksempler
         -Overvej at lave en ekstra simpel klasse hvis I vil have et helt “rent” eksempel
 
+        // Player, Inventory, Equipment, Item og underklasser brugt som eksempler
+
     [x] Indkapsling:
         -Tjek at alle felter er private og kun tilgås via getters og setters
         -Undgå at andre klasser end Inventory kan ændre direkte i slots listen
 
+        // alle felter private, adgang via getters/setters
+
     [x] this reference:
         -Vis et konkret eksempel i en setter eller i en konstruktør, hvor parameter og felt har samme navn
             -og I bruger this til at skelne
+
+        // this brugt hvor parameter og felt har samme navn
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 7 arv og polymorfi
@@ -215,15 +257,19 @@ I har allerede
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    [ ] Metodeoverriding:
+    [x] Metodeoverriding:
         -Overvej at override toString i Weapon, Armour og Consumable, så de viser lidt forskellig information
         -Det giver et klart eksempel til eksamen
+
+        // toString overridden i Weapon, Armour og Consumable
 
     [x] Synlig polymorfi:
         -Lav en metode, der tager en Item og gør noget, uanset om det er Weapon, Armour eller Consumable:
             -fx en metode der beskriver itemmet i tekstform
         -I kan også lave en lille liste med forskellige underklasser og iterere hen over dem og kalde samme metode
          på alle
+
+        // Inventory arbejder med List<Item> og udnytter polymorfi
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 8 designmønstre og abstraktion
@@ -244,8 +290,12 @@ Mulige tilføjelser:
         -I kan eventuelt samle objekt oprettelse i en separat metode, der baseret på type beslutter, hvilken underklasse
         der skal laves
 
+        // objekt-oprettelse baseret på type i InventoryFileHandler
+
     [x] Abstraktion:
         -Vis et sted, hvor I kun arbejder mod Item, Inventory eller InventoryService uden at kende alle detaljer indeni
+
+        // UI arbejder kun mod service og domain-interfaces
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 9 fejlhåndtering og robust kodning
@@ -257,20 +307,28 @@ I har allerede:
 -----------------------------------------------------------------------------------------------------------------------
 Mulige tilføjelser:
 
-    [ ] Brug egne exceptions i domain:
+    [/] Brug egne exceptions i domain:
         -Kast NegativeValues hvis nogen prøver at sætte negativ vægt, skade, defence eller stackSize
         -Kast MaxWeightReached når et item ikke kan tilføjes pga vægtgrænse
         -Kast ItemNotFound når der forsøges at fjerne eller bruge et item, der ikke findes
 
-    [x] Håndtering i service og UI
+        // NegativeValues og MaxWeightReached bruges konsekvent
+        // ItemNotFound findes i Inventory, men bruges ikke i alle flows
+
+    [/] Håndtering i service og UI
         -Fang disse exceptions i InventoryService eller Menu
         -Oversæt dem til pæne fejlbeskeder til brugeren i stedet for at lade programmet crashe
+
+        // exceptions fanges og oversættes til brugerbeskeder
 
     [x] Eksempler på typiske fejl
         -Tal om hvordan I undgår NullPointerException:
             -fx ved at tjekke for null i Equipment før udskrivning
         -Tal om hvordan I undgår ArrayIndexOutOfBoundsException:
             -fx hvis I laver arrays til Tema 4 og 5
+
+        // null-checks og instanceof forhindrer NPE
+        // index-fejl kun behandlet teoretisk
 
 -----------------------------------------------------------------------------------------------------------------------
 Tema 10 OOP og fejlhåndtering i praksis
@@ -285,12 +343,18 @@ Forslag til fokusområde:
             -hvilke klasser der er involveret (Menu, InventoryService, Inventory, Item og evt exceptions)
             -hvordan ansvaret er fordelt imellem dem
 
+        // valgt flow: “tilføj item til inventory”
+
     [x] Fejlhåndtering inde i metoder:
         -Læg tjek ind i domain klasserne, fx i addItem eller i metoder der ændrer stackSize
         -Reager på ugyldige værdier ved at:
             -kaste en exception
             -eller returnere en tydelig statusværdi, som Menu mapper til en fejlbesked
 
+        // validering i domain + exceptions/status til service/UI
+
     [x] Robusthed:
         -Sørg for, at fejl i filindlæsning, forkert input eller overskredet vægtgrænse ikke crasher programmet
         -I stedet skal brugeren få en forståelig besked og kunne prøve igen
+
+        // programmet crasher ikke ved fejl, brugeren kan fortsætte

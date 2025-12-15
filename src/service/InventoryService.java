@@ -5,12 +5,19 @@ import domain.enums.ArmourSlot;
 import domain.enums.HandType;
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+import exceptions.ItemNotFound;
+import exceptions.MaxWeightReached;
+import exceptions.NegativeValues;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // Service-lag mellem UI (Menu) og domain.
 // Samler logik for inventory, equipment, søgning, sortering og filhåndtering.
+//
+// Domain kaster exceptions.
+// Service fanger dem og oversætter til brugervenlige beskeder.
+// UI står kun for input og output.
 public class InventoryService {
 
     private final Player player;        // den aktive spiller
@@ -89,20 +96,34 @@ public class InventoryService {
             default -> item = new Item(name, type, rarity, weight);
         }
 
-        // addItem håndterer selv stacking, slots og vægt
-        boolean added = inventory.addItem(item);
+        // Service-laget håndterer domain-fejl og omsætter dem til tekst.
+        // UI skal ikke kende til exceptions.
+        try {
+            // addItem håndterer selv stacking, slots og vægt
+            boolean added = inventory.addItem(item);
 
-        return added
-                ? "Item has been added to the inventory!"
-                : "Item could not be added. Inventory is full or weight limit exceeded.";
+            return added
+                    ? "Item has been added to the inventory!"
+                    : "Item could not be added. Inventory is full.";
+
+        } catch (NegativeValues | MaxWeightReached e) {
+            // Domain-fejl omsættes til brugerfeedback, så programmet ikke crasher.
+            return "Item could not be added. " + e.getMessage();
+        }
     }
 
     public String removeItemByName(String name) {
-        Item item = inventory.findItemByName(name);
-        if (item != null && inventory.removeItem(item)) {
-            return "Item has been removed from the inventory!";
-        } else {
-            return "Item could not be removed. Item not found.";
+        // Service forventer enten et gyldigt item eller en ItemNotFound-exception fra domain.
+        try {
+            Item item = inventory.requireItemByName(name);
+
+            if (inventory.removeItem(item)) {
+                return "Item has been removed from the inventory!";
+            }
+            return "Item could not be removed.";
+
+        } catch (ItemNotFound e) {
+            return e.getMessage();
         }
     }
 
@@ -110,10 +131,12 @@ public class InventoryService {
     // Tjekker med instanceof for at sikre korrekt type før cast.
     public String useConsumable(String name) {
 
-        Item item = inventory.findItemByName(name);
-
-        if (item == null) {
-            return "Could not use consumable. Item not found.";
+        Item item;
+        try {
+            // Domain kaster ItemNotFound, så vi slipper for null-checks her.
+            item = inventory.requireItemByName(name);
+        } catch (ItemNotFound e) {
+            return e.getMessage();
         }
 
         // Sikrer at item faktisk er et Consumable
@@ -184,15 +207,23 @@ public class InventoryService {
             return "Nothing equipped in " + slot + ".";
         }
 
-        boolean added = inventory.addItem(removed);
+        try {
+            boolean added = inventory.addItem(removed);
 
-        if (!added) {
-            // rollback så vi ikke mister items
+            if (!added) {
+                // rollback så vi ikke mister items (inventory full/slots)
+                player.getEquipment().restoreToSlot(slot, removed);
+                return "Cannot unequip " + removed.getName() + ". Inventory is full.";
+            }
+
+            return "Unequipped " + removed.getName() + " from " + slot;
+
+        } catch (MaxWeightReached e) {
+            // Domain exception fanget.
+            // Rollback sikrer at item ikke forsvinder.
             player.getEquipment().restoreToSlot(slot, removed);
-            return "Cannot unequip " + removed.getName() + ". Inventory is full or weight limit exceeded.";
+            return "Cannot unequip " + removed.getName() + ". " + e.getMessage();
         }
-
-        return "Unequipped " + removed.getName() + " from " + slot;
     }
 
     public void sortByName() {

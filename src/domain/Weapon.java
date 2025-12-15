@@ -3,6 +3,7 @@ package domain;
 import domain.enums.HandType;
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+import exceptions.NegativeValues;
 
 // Repræsenterer et våben med skade og hvilken hånd-type (OneHand/OffHand/TwoHand).
 public class Weapon extends Item {
@@ -12,7 +13,10 @@ public class Weapon extends Item {
 
     public Weapon(String name, Rarity rarity, double weight, int damage, HandType handType) {
         super(name, ItemType.WEAPON, rarity, weight);
-        this.damage = damage;
+
+        // Validerer data i domain-laget.
+        setDamage(damage);
+
         this.handType = handType;
     }
 
@@ -20,7 +24,12 @@ public class Weapon extends Item {
         return damage;
     }
 
+    // Beskytter domain mod ugyldige værdier.
+    // Fejlen håndteres videre oppe i service-laget.
     public void setDamage(int damage) {
+        if (damage < 0) {
+            throw new NegativeValues("Damage cannot be negative.");
+        }
         this.damage = damage;
     }
 

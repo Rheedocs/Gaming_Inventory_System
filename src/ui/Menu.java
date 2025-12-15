@@ -1,7 +1,6 @@
 package ui;
 
 import domain.*;
-
 import domain.enums.ArmourSlot;
 import domain.enums.HandType;
 import domain.enums.ItemType;
@@ -12,7 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+// Konsolbaseret UI for inventory-systemet.
+// Viser menuer, læser input og kalder service-laget.
 public class Menu {
+
 
     private final Scanner input = new Scanner(System.in);
 
@@ -134,12 +136,8 @@ public class Menu {
     }
 
     private void addItem() {
-        if (service.getInventory().getTotalWeight() >= service.getInventory().getMaxWeight()) {
-            System.out.println("Inventory is full (weight: " + service.getInventory().getTotalWeight()
-                    + " / " + service.getInventory().getMaxWeight() + ").");
-            pause();
-            return;
-        }
+        // UI læser input og sender det videre til service.
+        // Domain/service håndterer validering (vægt, stackSize, osv.) og returnerer beskeder.
 
         System.out.print("Name: ");
         String name = input.nextLine().trim();
@@ -152,19 +150,8 @@ public class Menu {
         ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
         Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
 
-        double weight;
-
-        while (true) {
-            System.out.print("Weight (must be > 0): ");
-            weight = readDouble();
-
-            if (weight <= 0) {
-                System.out.println("Error: Weight must be greater then 0");
-                continue;
-            }
-
-            break;
-        }
+        System.out.print("Weight: ");
+        double weight = readDouble();
 
         Integer damage = null;
         HandType handType = null;
@@ -190,10 +177,15 @@ public class Menu {
             effectType = input.nextLine().trim();
             System.out.print("StackSize: ");
             stackSize = readInt();
-            if (stackSize < 1) stackSize = 1;
         }
 
-        String result = service.addItem(name, type, rarity, weight, damage, handType, defence, armourSlot, effectType, stackSize);
+        String result = service.addItem(
+                name, type, rarity, weight,
+                damage, handType,
+                defence, armourSlot,
+                effectType, stackSize
+        );
+
         System.out.println(result);
         pause();
     }
@@ -205,28 +197,20 @@ public class Menu {
             return;
         }
 
-        while (true) {
-            showInventory();
-            System.out.print("Item to remove (or type 'exit' to go back): ");
-            String name = input.nextLine().trim();
+        showInventory();
+        System.out.print("Item to remove (or type 'exit' to go back): ");
+        String name = input.nextLine().trim();
 
-            if (name.equalsIgnoreCase("exit")) {
-                return;
-            }
-            if (name.isBlank()) {
-                continue;
-            }
-
-            String result = service.removeItemByName(name);
-            System.out.println(result);
-            pause();
-
-            if (result.toLowerCase().contains("not found")) {
-                continue;
-            }
-
+        if (name.equalsIgnoreCase("exit")) {
             return;
         }
+        if (name.isBlank()) {
+            return;
+        }
+
+        String result = service.removeItemByName(name);
+        System.out.println(result);
+        pause();
     }
 
     private void equipItem() {
@@ -358,7 +342,6 @@ public class Menu {
             pause();
         }
     }
-
 
     private void searchItem() {
         System.out.print("Name to search for: ");
@@ -497,6 +480,10 @@ public class Menu {
     private void printResults(String title, List<Item> items) {
         System.out.println(ItemTablePrinter.format(title, items));
     }
+
+    // Hjælpemetoder til robust brugerinput.
+    // UI håndterer kun input-fejl (NumberFormatException / IllegalArgumentException).
+    // Domæne- og forretningsfejl håndteres i service- og domain-lag.
 
     // ---------- ui hjælpemetoder ----------
 
