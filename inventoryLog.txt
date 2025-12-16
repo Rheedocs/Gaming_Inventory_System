@@ -1,0 +1,18 @@
+# Inventory settings
+maxWeight=50.0
+maxSlots=192
+unlockedSlots=64
+
+# Items
+ARMOUR;name=Leather Cap;rarity=COMMON;weight=1.2;defence=2;slot=HEAD
+ARMOUR;name=Boots;rarity=COMMON;weight=1.5;defence=1;slot=FEET
+CONSUMABLE;name=Arrow Bundle;rarity=COMMON;weight=0.1;effect=Ammo;stack=20
+CONSUMABLE;name=Healing Potion;rarity=COMMON;weight=0.5;effect=Heal;stack=5
+WEAPON;name=Wooden Shield;rarity=UNCOMMON;weight=5.0;damage=2;hand=OFF_HAND
+ARMOUR;name=Chainmail;rarity=UNCOMMON;weight=7.8;defence=8;slot=CHEST
+CONSUMABLE;name=Stamina Snack;rarity=UNCOMMON;weight=0.2;effect=Stamina;stack=3
+WEAPON;name=Great Axe;rarity=RARE;weight=9.5;damage=25;hand=TWO_HAND
+ARMOUR;name=Iron Greaves;rarity=RARE;weight=6.3;defence=6;slot=LEGS
+WEAPON;name=Weapon of Test;rarity=EPIC;weight=2.0;damage=100;hand=TWO_HAND
+ARMOUR;name=Armour of Coding;rarity=EPIC;weight=3.0;defence=20;slot=CHEST
+WEAPON;name=Iron Sword;rarity=COMMON;weight=3.5;damage=12;hand=ONE_HAND
