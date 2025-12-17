@@ -65,6 +65,11 @@ public class InventoryService {
             String effectType,     // Consumable
             Integer stackSize      // Consumable
     ) {
+
+        // Service-laget håndterer domain-fejl og omsætter dem til tekst.
+        // UI skal ikke kende til exceptions.
+        try {
+
         Item item;
 
         // Vælg konkret subtype ud fra type og giv de ekstra felter videre
@@ -96,9 +101,7 @@ public class InventoryService {
             default -> item = new Item(name, type, rarity, weight);
         }
 
-        // Service-laget håndterer domain-fejl og omsætter dem til tekst.
-        // UI skal ikke kende til exceptions.
-        try {
+
             // addItem håndterer selv stacking, slots og vægt
             boolean added = inventory.addItem(item);
 
@@ -111,6 +114,21 @@ public class InventoryService {
             return "Item could not be added. " + e.getMessage();
         }
     }
+
+    public void validateAddWeight(double weight, int stackSize)
+            throws NegativeValues, MaxWeightReached {
+
+        if (weight <= 0) {
+            throw new NegativeValues("Weight must be greater than 0.");
+        }
+
+        double addedWeight = weight * Math.max(stackSize, 1);
+
+        if (inventory.getTotalWeight() + addedWeight > inventory.getMaxWeight()) {
+            throw new MaxWeightReached("Item is too heavy for your inventory.");
+        }
+    }
+
 
     public String removeItemByName(String name) {
         // Service forventer enten et gyldigt item eller en ItemNotFound-exception fra domain.

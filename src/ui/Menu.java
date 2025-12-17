@@ -5,6 +5,8 @@ import domain.enums.ArmourSlot;
 import domain.enums.HandType;
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+import exceptions.MaxWeightReached;
+import exceptions.NegativeValues;
 import service.InventoryService;
 
 import java.util.ArrayList;
@@ -150,8 +152,19 @@ public class Menu {
         ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
         Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
 
-        System.out.print("Weight: ");
-        double weight = readDouble();
+        System.out.println("Weight: ");
+        double weight;
+
+        while (true) {
+            weight = readDouble();
+            try {
+                service.validateAddWeight(weight, 1);
+                break; // weight is valid
+
+            } catch (NegativeValues | MaxWeightReached e) {
+                ConsoleUI.message(e.getMessage());
+            }
+        }
 
         Integer damage = null;
         HandType handType = null;
