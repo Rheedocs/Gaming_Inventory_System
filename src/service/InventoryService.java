@@ -322,8 +322,8 @@ public class InventoryService {
         return results;
     }
 
-    // køber inventory slots
-    public boolean buyInventorySlots(int amount) {
-        return inventory.buyInventorySlots(amount);
+    // unlocker inventory slots
+    public boolean unlockInventorySlots(int amount) {
+        return player.getInventory().unlockInventorySlots(amount);
     }
 }

@@ -17,20 +17,29 @@ import java.util.Scanner;
 // Viser menuer, læser input og kalder service-laget.
 public class Menu {
 
-
     private final Scanner input = new Scanner(System.in);
-
     private final Player player = new Player("Player1");
     private final InventoryService service = new InventoryService(player);
 
     public void start() {
+
+        ConsoleUI.header("LEGEND OF CODECRAFT");
+
+        System.out.println("You enter a world where magic meets code.");
+        System.out.println("Your inventory is empty, waiting to be shaped.");
+        System.out.println("What you create and carry will define your adventure.");
+        System.out.println();
+        System.out.print("> Press Enter to begin");
+        pauseSilent();
+        System.out.println();
+
         while (true) {
             ConsoleUI.header("MAIN MENU");
             ConsoleUI.option(1, "Inventory");
             ConsoleUI.option(2, "Equipment");
             ConsoleUI.option(3, "Use consumable");
             ConsoleUI.option(4, "Search / filter");
-            ConsoleUI.option(5, "Buy slots");
+            ConsoleUI.option(5, "Unlock slots");
             ConsoleUI.option(6, "Save inventory");
             ConsoleUI.option(7, "Load inventory");
             ConsoleUI.option(8, "Exit");
@@ -43,7 +52,7 @@ public class Menu {
                 case 2 -> equipmentMenu();
                 case 3 -> useConsumable();
                 case 4 -> searchMenu();
-                case 5 -> buySlotsMenu();
+                case 5 -> unlockSlotsMenu();
                 case 6 -> saveInvToFile();
                 case 7 -> loadInvFromFile();
                 case 8 -> {
@@ -138,12 +147,11 @@ public class Menu {
     }
 
     private void addItem() {
-        // UI læser input og sender det videre til service.
-        // Domain/service håndterer validering (vægt, stackSize, osv.) og returnerer beskeder.
+        // UI læser input og laver simple checks (tomt/negative).
+        // Service/domain håndhæver regler (maxWeight/stacking) og returnerer beskeder.
 
         System.out.print("Name: ");
         String name = input.nextLine().trim();
-
         while (name.isBlank()) {
             System.out.print("Name: ");
             name = input.nextLine().trim();
@@ -151,20 +159,6 @@ public class Menu {
 
         ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
         Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
-
-        System.out.println("Weight: ");
-        double weight;
-
-        while (true) {
-            weight = readDouble();
-            try {
-                service.validateAddWeight(weight, 1);
-                break; // weight is valid
-
-            } catch (NegativeValues | MaxWeightReached e) {
-                ConsoleUI.message(e.getMessage());
-            }
-        }
 
         Integer damage = null;
         HandType handType = null;
@@ -174,22 +168,47 @@ public class Menu {
         Integer stackSize = null;
 
         if (type == ItemType.WEAPON) {
-            System.out.print("Damage: ");
-            damage = readInt();
+            while (true) {
+                System.out.print("Damage: ");
+                damage = readInt();
+                if (damage >= 0) break;
+                ConsoleUI.message("Damage cannot be negative.");
+            }
             handType = readEnum(HandType.class, "HandType (ONE_HAND/OFF_HAND/TWO_HAND): ");
         }
 
         if (type == ItemType.ARMOUR) {
-            System.out.print("Defence: ");
-            defence = readInt();
+            while (true) {
+                System.out.print("Defence: ");
+                defence = readInt();
+                if (defence >= 0) break;
+                ConsoleUI.message("Defence cannot be negative.");
+            }
             armourSlot = readEnum(ArmourSlot.class, "ArmourSlot (HEAD/CHEST/LEGS/FEET): ");
         }
 
         if (type == ItemType.CONSUMABLE) {
             System.out.print("EffectType (text): ");
             effectType = input.nextLine().trim();
-            System.out.print("StackSize: ");
-            stackSize = readInt();
+            while (true) {
+                System.out.print("StackSize: ");
+                stackSize = readInt();
+                if (stackSize >= 1) break;
+                ConsoleUI.message("Stack size must be at least 1.");
+            }
+        }
+
+        double weight;
+        while (true) {
+            System.out.print("Weight: ");
+            weight = readDouble();
+            try {
+                int effectiveStack = (stackSize != null) ? stackSize : 1;
+                service.validateAddWeight(weight, effectiveStack);
+                break;
+            } catch (NegativeValues | MaxWeightReached e) {
+                ConsoleUI.message(e.getMessage());
+            }
         }
 
         String result = service.addItem(
@@ -210,20 +229,44 @@ public class Menu {
             return;
         }
 
-        showInventory();
-        System.out.print("Item to remove (or type 'exit' to go back): ");
-        String name = input.nextLine().trim();
+        while (true) {
+            showInventory();
+            System.out.print("Item to remove (or type 'exit' to go back): ");
+            String name = input.nextLine().trim();
 
-        if (name.equalsIgnoreCase("exit")) {
-            return;
-        }
-        if (name.isBlank()) {
-            return;
-        }
+            if (name.equalsIgnoreCase("exit")) {
+                return;
+            }
 
-        String result = service.removeItemByName(name);
-        System.out.println(result);
-        pause();
+            if (name.isBlank()) {
+                ConsoleUI.message("Please enter an item name.");
+                continue;
+            }
+
+            String result = service.removeItemByName(name);
+            ConsoleUI.message(result);
+
+            // Hvis item blev fjernet, spørg om brugeren vil fortsætte
+            if (result.toLowerCase().contains("removed")) {
+                while (true) {
+                    System.out.print("Remove another item? (y/n): ");
+                    String answer = input.nextLine().trim().toLowerCase();
+
+                    if (answer.equals("y")) {
+                        break; // fjern et mere
+                    }
+                    if (answer.equals("n")) {
+                        pause(); // først her giver pause mening
+                        return;
+                    }
+
+                    ConsoleUI.message("Please enter y or n.");
+                }
+            } else {
+                // item blev ikke fjernet → giv tid til at læse beskeden
+                pause();
+            }
+        }
     }
 
     private void equipItem() {
@@ -323,8 +366,23 @@ public class Menu {
             return;
         }
 
+        // UI-valg: vis kun consumables, så brugeren ikke kan vælge weapon/armour ved en fejl
+        List<Item> consumables = new ArrayList<>();
+        for (Item i : service.getItems()) {
+            if (i instanceof Consumable) {
+                consumables.add(i);
+            }
+        }
+
+        if (consumables.isEmpty()) {
+            ConsoleUI.message("No consumables in inventory.");
+            pause();
+            return;
+        }
+
         while (true) {
-            showInventory();
+            printResults("CONSUMABLES", consumables);
+
             System.out.print("Consumable to use (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
@@ -332,27 +390,53 @@ public class Menu {
                 return;
             }
             if (name.isBlank()) {
+                ConsoleUI.message("Please enter a name.");
                 continue;
             }
 
             String result = service.useConsumable(name);
 
-            // Succes-output opdelt i boks + linje
             if (result.toLowerCase().contains("used consumable")) {
                 String[] parts = result.split("\\|");
-
                 ConsoleUI.message(parts[0].trim());
-
                 if (parts.length > 1) {
                     System.out.println(parts[1].trim());
                 }
-                pause();
-                return;
-            }
 
-            // Fejlbesked
-            ConsoleUI.message(result);
-            pause();
+                // Opdater listen, så UI matcher efter brug (stack kan falde, item kan forsvinde)
+                consumables.clear();
+                for (Item i : service.getItems()) {
+                    if (i instanceof Consumable) {
+                        consumables.add(i);
+                    }
+                }
+
+                // Hvis der ikke er flere consumables tilbage, så stop flowet
+                if (consumables.isEmpty()) {
+                    ConsoleUI.message("No consumables left.");
+                    pause();
+                    return;
+                }
+
+                while (true) {
+                    System.out.print("Use another consumable? (y/n): ");
+                    String answer = input.nextLine().trim().toLowerCase();
+
+                    if (answer.equals("y")) {
+                        break; // fortsæt og brug en mere
+                    }
+                    if (answer.equals("n")) {
+                        pause();
+                        return;
+                    }
+
+                    ConsoleUI.message("Please enter y or n.");
+                }
+
+            } else {
+                ConsoleUI.message(result);
+                pause();
+            }
         }
     }
 
@@ -402,7 +486,7 @@ public class Menu {
     }
 
     private void saveInvToFile() {
-        System.out.print("Filename to save to (e.g. inventoryLog.txt): ");
+        System.out.print("Filename to save to (e.g. Player1Inventory.txt): ");
         String name = input.nextLine().trim();
 
         boolean ok = service.save(name);
@@ -416,42 +500,76 @@ public class Menu {
     }
 
     private void loadInvFromFile() {
-        System.out.print("Filename to load from: ");
-        String name = input.nextLine().trim();
+        while (true) {
+            System.out.print("Filename to load from (or type 'exit' to go back): ");
+            String name = input.nextLine().trim();
 
-        boolean ok = service.load(name);
+            if (name.equalsIgnoreCase("exit")) {
+                return;
+            }
 
-        if (ok) {
-            ConsoleUI.message("Inventory has been loaded!");
-        } else {
-            ConsoleUI.message("Could not load inventory (file missing or invalid).");
+            if (name.isBlank()) {
+                ConsoleUI.message("Please enter a filename.");
+                continue;
+            }
+
+            boolean ok = service.load(name);
+
+            if (ok) {
+                ConsoleUI.message("Inventory has been loaded!");
+                pause();
+                return;
+            } else {
+                ConsoleUI.message("Could not load inventory (file missing or invalid). Try again.");
+                // ingen pause her, så den bare spørger igen
+            }
         }
-        pause();
     }
 
-    public void buySlotsMenu() {
+
+    public void unlockSlotsMenu() {
         while (true) {
-            ConsoleUI.header("BUY SLOTS");
-            System.out.println("Unlocked: " + service.getInventory().getUnlockedSlots()
-                    + "/" + service.getInventory().getMaxSlots());
-            System.out.println("How many slots do you want to buy? (or 0 to go back)");
+            ConsoleUI.header("UNLOCK SLOTS");
+
+            int unlocked = service.getInventory().getUnlockedSlots();
+            int max = service.getInventory().getMaxSlots();
+
+            System.out.println("Unlocked: " + unlocked + "/" + max);
+
+            // Stop tidligt hvis max allerede er nået
+            if (unlocked >= max) {
+                ConsoleUI.message("Maximum slots reached. All inventory slots are unlocked.");
+                pause();
+                return;
+            }
+
+            System.out.println("How many slots do you want to unlock? (or 0 to go back)");
             ConsoleUI.footer();
 
             int amount = readInt();
 
             if (amount == 0) {
-                return; // tilbage til menu
+                return;
             }
 
-            boolean success = service.buyInventorySlots(amount);
+            boolean success = service.unlockInventorySlots(amount);
 
             if (success) {
-                ConsoleUI.message("Slots successfully unlocked.");
+                // Tjek efter unlock om vi nu rammer max
+                int newUnlocked = service.getInventory().getUnlockedSlots();
+
+                if (newUnlocked >= max) {
+                    ConsoleUI.message("Slots successfully unlocked. Maximum slots reached.");
+                } else {
+                    ConsoleUI.message("Slots successfully unlocked.");
+                }
+
                 pause();
                 return;
             }
 
-            ConsoleUI.message("Could not buy slots. Must be > 0 and within max slots.");
+            // Fejl: negativt tal, for stort tal, eller overskrider max
+            ConsoleUI.message("Could not unlock slots. Must be > 0 and within max slots.");
             pause();
         }
     }
@@ -552,7 +670,10 @@ public class Menu {
             String inputText = input.nextLine().trim();
 
             try {
-                return Enum.valueOf(enumClass, inputText.toUpperCase());
+                return Enum.valueOf(enumClass, inputText.trim()
+                        .replace(" ", "_")
+                        .replace("-", "_")
+                        .toUpperCase());
             } catch (IllegalArgumentException e) {
                 ConsoleUI.message("Invalid input. Try again.");
             }
@@ -570,6 +691,10 @@ public class Menu {
 
     private void pause() {
         System.out.println("Press Enter to continue...");
+        input.nextLine();
+    }
+
+    private void pauseSilent() {
         input.nextLine();
     }
 }

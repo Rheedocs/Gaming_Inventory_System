@@ -199,14 +199,14 @@ public class Inventory {
     }
 
     // Låser flere slots op hvis amount er gyldig og der er plads til det
-    public boolean buyInventorySlots(int amount) {
+    public boolean unlockInventorySlots(int amount) {
 
-        // ugyldigt køb
+        // ugyldigt unlock
         if (amount <= 0) {
             return false;
         }
 
-        // kan ikke købe forbi max slots
+        // kan ikke unlock forbi max slots
         if (unlockedSlots + amount > maxSlots) {
             return false;
         }
