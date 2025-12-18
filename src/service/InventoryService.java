@@ -122,9 +122,14 @@ public class InventoryService {
             throw new NegativeValues("Weight must be greater than 0.");
         }
 
-        double addedWeight = weight * Math.max(stackSize, 1);
+        if (stackSize <= 0) {
+            throw new NegativeValues("Stack size must be greater than 0.");
+        }
 
-        if (inventory.getTotalWeight() + addedWeight > inventory.getMaxWeight()) {
+        double addedWeight = weight * stackSize;
+        double totalAfter = inventory.getTotalWeight() + addedWeight;
+
+        if (totalAfter > inventory.getMaxWeight()) {
             throw new MaxWeightReached("Item is too heavy for your inventory.");
         }
     }

@@ -5,6 +5,7 @@ import domain.enums.ArmourSlot;
 import domain.enums.HandType;
 import domain.enums.ItemType;
 import domain.enums.Rarity;
+
 import exceptions.MaxWeightReached;
 import exceptions.NegativeValues;
 import service.InventoryService;
@@ -139,87 +140,124 @@ public class Menu {
         System.out.print(InventoryPrinter.format(service.getInventory()));
     }
 
-    private void showEquipment() {
+    private void printEquipment() {
         System.out.println();
         System.out.println("Player: " + player.getName());
         System.out.print(EquipmentPrinter.format(service.getPlayer().getEquipment()));
+    }
+
+    private void showEquipment() {
+        printEquipment();
         pause();
     }
 
     private void addItem() {
         // UI læser input og laver simple checks (tomt/negative).
         // Service/domain håndhæver regler (maxWeight/stacking) og returnerer beskeder.
+        // Vi bruger en loop her, så "Add another item? (y/n)" faktisk kan lave en ny add-runde.
+        // Ellers ville "y" kun bryde ud af et indre loop og ikke starte addItem() forfra.
 
-        System.out.print("Name: ");
-        String name = input.nextLine().trim();
-        while (name.isBlank()) {
-            System.out.print("Name: ");
-            name = input.nextLine().trim();
-        }
-
-        ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
-        Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
-
-        Integer damage = null;
-        HandType handType = null;
-        Integer defence = null;
-        ArmourSlot armourSlot = null;
-        String effectType = null;
-        Integer stackSize = null;
-
-        if (type == ItemType.WEAPON) {
-            while (true) {
-                System.out.print("Damage: ");
-                damage = readInt();
-                if (damage >= 0) break;
-                ConsoleUI.message("Damage cannot be negative.");
-            }
-            handType = readEnum(HandType.class, "HandType (ONE_HAND/OFF_HAND/TWO_HAND): ");
-        }
-
-        if (type == ItemType.ARMOUR) {
-            while (true) {
-                System.out.print("Defence: ");
-                defence = readInt();
-                if (defence >= 0) break;
-                ConsoleUI.message("Defence cannot be negative.");
-            }
-            armourSlot = readEnum(ArmourSlot.class, "ArmourSlot (HEAD/CHEST/LEGS/FEET): ");
-        }
-
-        if (type == ItemType.CONSUMABLE) {
-            System.out.print("EffectType (text): ");
-            effectType = input.nextLine().trim();
-            while (true) {
-                System.out.print("StackSize: ");
-                stackSize = readInt();
-                if (stackSize >= 1) break;
-                ConsoleUI.message("Stack size must be at least 1.");
-            }
-        }
-
-        double weight;
         while (true) {
-            System.out.print("Weight: ");
-            weight = readDouble();
-            try {
-                int effectiveStack = (stackSize != null) ? stackSize : 1;
-                service.validateAddWeight(weight, effectiveStack);
-                break;
-            } catch (NegativeValues | MaxWeightReached e) {
-                ConsoleUI.message(e.getMessage());
+
+            // Stop tidligt hvis maxWeight allerede er nået
+            if (service.getInventory().getTotalWeight() >= service.getInventory().getMaxWeight()) {
+                ConsoleUI.message("You're carrying too much!");
+                pause();
+                return;
+            }
+
+            System.out.print("Name: ");
+            String name = input.nextLine().trim();
+            while (name.isBlank()) {
+                System.out.print("Please enter a name: ");
+                name = input.nextLine().trim();
+            }
+
+            ItemType type = readEnum(ItemType.class, "Type (WEAPON/ARMOUR/CONSUMABLE): ");
+            Rarity rarity = readEnum(Rarity.class, "Rarity (COMMON/UNCOMMON/RARE/EPIC): ");
+
+            Integer damage = null;
+            HandType handType = null;
+            Integer defence = null;
+            ArmourSlot armourSlot = null;
+            String effectType = null;
+            Integer stackSize = null;
+
+            if (type == ItemType.WEAPON) {
+                while (true) {
+                    System.out.print("Damage: ");
+                    damage = readInt();
+                    if (damage >= 0) break;
+                    ConsoleUI.message("Damage cannot be negative.");
+                }
+                handType = readEnum(HandType.class, "HandType (ONE_HAND/OFF_HAND/TWO_HAND): ");
+            }
+
+            if (type == ItemType.ARMOUR) {
+                while (true) {
+                    System.out.print("Defence: ");
+                    defence = readInt();
+                    if (defence >= 0) break;
+                    ConsoleUI.message("Defence cannot be negative.");
+                }
+                armourSlot = readEnum(ArmourSlot.class, "ArmourSlot (HEAD/CHEST/LEGS/FEET): ");
+            }
+
+            if (type == ItemType.CONSUMABLE) {
+                System.out.print("EffectType (text): ");
+                effectType = input.nextLine().trim();
+                while (true) {
+                    System.out.print("StackSize: ");
+                    stackSize = readInt();
+                    if (stackSize >= 1) break;
+                    ConsoleUI.message("Stack size must be at least 1.");
+                }
+            }
+
+            double weight;
+
+            while (true) {
+                System.out.print("Weight: ");
+                weight = readDouble();
+                try {
+                    int effectiveStack = (stackSize != null) ? stackSize : 1;
+                    service.validateAddWeight(weight, effectiveStack);
+                    break;
+                } catch (NegativeValues | MaxWeightReached e) {
+                    ConsoleUI.message(e.getMessage());
+                }
+            }
+
+            String result = service.addItem(
+                    name, type, rarity, weight,
+                    damage, handType,
+                    defence, armourSlot,
+                    effectType, stackSize
+            );
+
+            System.out.println(result);
+
+            // Hvis det blev added og vi nu rammer maxWeight, så stop uden at spørge om flere
+            if (result.toLowerCase().contains("added")
+                    && service.getInventory().getTotalWeight() >= service.getInventory().getMaxWeight()) {
+                System.out.println("Max weight reached. You can't add more items.");
+                pause();
+                return;
+            }
+
+            // Spørg kun om flere items hvis det faktisk gav mening (typisk ved "added")
+            if (result.toLowerCase().contains("added")) {
+                if (!askYesNo("Add another item?")) {
+                    pause();
+                    return;
+                }
+                // "y" -> loop starter forfra og laver en ny add-runde
+            } else {
+                // Hvis add fejlede (fx slots/vægt/andet), så giv tid til at læse beskeden
+                pause();
+                return;
             }
         }
-
-        String result = service.addItem(
-                name, type, rarity, weight,
-                damage, handType,
-                defence, armourSlot,
-                effectType, stackSize
-        );
-
-        System.out.println(result);
-        pause();
     }
 
     private void removeItem() {
@@ -248,20 +286,11 @@ public class Menu {
 
             // Hvis item blev fjernet, spørg om brugeren vil fortsætte
             if (result.toLowerCase().contains("removed")) {
-                while (true) {
-                    System.out.print("Remove another item? (y/n): ");
-                    String answer = input.nextLine().trim().toLowerCase();
-
-                    if (answer.equals("y")) {
-                        break; // fjern et mere
-                    }
-                    if (answer.equals("n")) {
-                        pause(); // først her giver pause mening
-                        return;
-                    }
-
-                    ConsoleUI.message("Please enter y or n.");
+                if (!askYesNo("Remove another item?")) {
+                    pause(); // først her giver pause mening
+                    return;
                 }
+                // "y" -> loop fortsætter og fjerner et mere
             } else {
                 // item blev ikke fjernet → giv tid til at læse beskeden
                 pause();
@@ -277,25 +306,24 @@ public class Menu {
             return;
         }
 
-        // UI-valg: Vi viser kun items der kan equips (Weapon/Armour),
-        // så brugeren ikke kan vælge ugyldige items som fx Consumables.
-        List<Item> equipables = new ArrayList<>();
-        for (Item i : service.getItems()) {
-            if (i instanceof Weapon || i instanceof Armour) {
-                equipables.add(i);
-            }
-        }
-
-        if (equipables.isEmpty()) {
-            ConsoleUI.message("No equippable items in inventory.");
-            pause();
-            return;
-        }
-
-        // Vis kun listen over equippable items (mere brugervenligt)
-        printResults("EQUIPPABLE ITEMS", equipables);
-
         while (true) {
+            // UI-valg: Vi viser kun items der kan equips (Weapon/Armour),
+            // så brugeren ikke kan vælge ugyldige items som fx Consumables.
+            List<Item> equipables = new ArrayList<>();
+            for (Item i : service.getItems()) {
+                if (i instanceof Weapon || i instanceof Armour) {
+                    equipables.add(i);
+                }
+            }
+
+            if (equipables.isEmpty()) {
+                ConsoleUI.message("No equippable items in inventory.");
+                pause();
+                return;
+            }
+
+            printResults("EQUIPPABLE ITEMS", equipables);
+
             System.out.print("Item you want to equip (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
@@ -303,6 +331,7 @@ public class Menu {
                 return;
             }
             if (name.isBlank()) {
+                ConsoleUI.message("Please enter a name.");
                 continue;
             }
 
@@ -313,7 +342,6 @@ public class Menu {
                 continue;
             }
 
-            // Sikkerhedstjek (hvis brugeren skriver et navn på et ikke-equippable item)
             if (!(item instanceof Weapon || item instanceof Armour)) {
                 ConsoleUI.message("Item cannot be equipped.");
                 continue;
@@ -321,8 +349,13 @@ public class Menu {
 
             String result = service.equip(item);
             ConsoleUI.message(result);
-            pause();
-            return;
+
+            // Vis altid equipment efter et equip-forsøg, så brugeren kan se ændringen
+            printEquipment();
+
+            if (!askYesNo("Equip another item?")) {
+                return;
+            }
         }
     }
 
@@ -334,11 +367,13 @@ public class Menu {
         }
 
         while (true) {
-            System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet, or 'exit' to go back): ");
+            // Vis aktuelt equipment før valg
+            printEquipment();
+
+            System.out.print("Slot to unequip (MainHand/OffHand/Head/Chest/Legs/Feet, or 'exit'): ");
             String slot = input.nextLine().trim();
 
             if (slot.equalsIgnoreCase("exit")) {
-                ConsoleUI.message("Returning to menu");
                 return;
             }
 
@@ -349,11 +384,17 @@ public class Menu {
 
             String result = service.unequip(slot);
             ConsoleUI.message(result);
-            pause();
+
+            // Vis equipment efter ændring
+            printEquipment();
 
             if (service.isEquipmentEmpty()) {
                 ConsoleUI.message("Nothing else is equipped.");
-                pause();
+                return;
+            }
+
+            // Ét stop-punkt er nok
+            if (!askYesNo("Unequip another item?")) {
                 return;
             }
         }
@@ -418,20 +459,11 @@ public class Menu {
                     return;
                 }
 
-                while (true) {
-                    System.out.print("Use another consumable? (y/n): ");
-                    String answer = input.nextLine().trim().toLowerCase();
-
-                    if (answer.equals("y")) {
-                        break; // fortsæt og brug en mere
-                    }
-                    if (answer.equals("n")) {
-                        pause();
-                        return;
-                    }
-
-                    ConsoleUI.message("Please enter y or n.");
+                if (!askYesNo("Use another consumable?")) {
+                    pause();
+                    return;
                 }
+                // "y" -> loop fortsætter og bruger en mere
 
             } else {
                 ConsoleUI.message(result);
@@ -486,7 +518,7 @@ public class Menu {
     }
 
     private void saveInvToFile() {
-        System.out.print("Filename to save to (e.g. Player1Inventory.txt): ");
+        System.out.print("Filename to save to (e.g. P1_Inv.txt): ");
         String name = input.nextLine().trim();
 
         boolean ok = service.save(name);
@@ -525,7 +557,6 @@ public class Menu {
             }
         }
     }
-
 
     public void unlockSlotsMenu() {
         while (true) {
@@ -696,5 +727,18 @@ public class Menu {
 
     private void pauseSilent() {
         input.nextLine();
+    }
+
+    // UI helper: y/n prompt, så vi ikke copy-paster den samme while-loop logik 3 steder.
+    private boolean askYesNo(String prompt) {
+        while (true) {
+            System.out.print(prompt + " (y/n): ");
+            String answer = input.nextLine().trim().toLowerCase();
+
+            if (answer.equals("y")) return true;
+            if (answer.equals("n")) return false;
+
+            ConsoleUI.message("Please enter y or n.");
+        }
     }
 }
