@@ -136,13 +136,53 @@ public class InventoryService {
 
 
     public String removeItemByName(String name) {
-        // Service forventer enten et gyldigt item eller en ItemNotFound-exception fra domain.
         try {
+            // Finder item eller kaster ItemNotFound
             Item item = inventory.requireItemByName(name);
 
+            // Fjerner hele item-objektet fra inventory (inkl. hele stacken for consumables)
             if (inventory.removeItem(item)) {
-                return "Item has been removed from the inventory!";
+                return "Removed item: " + item.getName();
             }
+
+            return "Item could not be removed.";
+
+        } catch (ItemNotFound e) {
+            return e.getMessage();
+        }
+    }
+
+    public String removeItemByName(String name, int amount) {
+        try {
+            // Finder item eller kaster ItemNotFound
+            Item item = inventory.requireItemByName(name);
+
+            // Guard clause: amount skal være >= 1
+            if (amount <= 0) {
+                return "Amount must be at least 1.";
+            }
+
+            // Kun consumables har stackSize der kan reduceres
+            if (item instanceof Consumable c) {
+                int current = c.getStackSize();
+
+                // Hvis man prøver at fjerne mere end der er -> fjern hele stacken
+                if (amount >= current) {
+                    inventory.removeItem(c);
+                    return "Removed entire stack of " + c.getName() + " (x" + current + ").";
+                }
+
+                // Ellers reducer stackSize
+                c.setStackSize(current - amount);
+                return "Removed " + amount + " from " + c.getName()
+                        + " | Remaining in stack: " + c.getStackSize();
+            }
+
+            // Ikke-consumable: "amount" giver ikke mening -> fjern hele itemet som normalt
+            if (inventory.removeItem(item)) {
+                return "Removed item: " + item.getName();
+            }
+
             return "Item could not be removed.";
 
         } catch (ItemNotFound e) {
@@ -156,28 +196,36 @@ public class InventoryService {
 
         Item item;
         try {
-            // Domain kaster ItemNotFound, så vi slipper for null-checks her.
             item = inventory.requireItemByName(name);
         } catch (ItemNotFound e) {
             return e.getMessage();
         }
 
-        // Sikrer at item faktisk er et Consumable
         if (!(item instanceof Consumable c)) {
             return "Item is not a consumable.";
         }
 
         int currentStack = c.getStackSize();
 
-        // Reducerer stack hvis der er flere tilbage
-        if (currentStack > 1) {
-            c.setStackSize(currentStack - 1);
-        } else {
-            // Sidste i stacken fjernes helt fra inventory
+        // (Valgfrit) ekstra guard, hvis data skulle være corrupt
+        if (currentStack <= 0) {
             inventory.removeItem(c);
+            return "Consumable stack was invalid (0). Item removed.";
         }
 
-        // Feedback til brugeren
+        int remaining;
+
+        if (currentStack > 1) {
+            remaining = currentStack - 1;
+            c.setStackSize(remaining); // OK: stadig >= 1
+        } else {
+            // currentStack == 1 -> brug den sidste og fjern itemet fra inventory
+            inventory.removeItem(c);
+            remaining = 0;
+
+            // VIGTIGT: IKKE c.setStackSize(0) pga domain-regel (>= 1)
+        }
+
         String effect = c.getEffectType();
         String message = "Used consumable: " + c.getName();
 
@@ -185,10 +233,7 @@ public class InventoryService {
             message += " (" + effect + ")";
         }
 
-        if (c.getStackSize() > 0) {
-            message += " | Remaining in stack: " + c.getStackSize();
-        }
-
+        message += " | Remaining in stack: " + remaining;
         return message;
     }
 
@@ -197,23 +242,32 @@ public class InventoryService {
     public String equip(Item item) {
 
         if (item instanceof Weapon w) {
-            boolean ok = player.getEquipment().equipWeapon(w);
 
-            if (ok) {
-                inventory.removeItem(w);
-                return "Equipped weapon: " + w.getName();
+            // Equipment returnerer 0-2 items der blev skubbet ud
+            List<Item> replaced = player.getEquipment().equipWeapon(w);
+
+            // Ny weapon flyttes fra inventory -> equipment
+            inventory.removeItem(w);
+
+            // Skubbede items flyttes tilbage til inventory
+            for (Item r : replaced) {
+                inventory.addItem(r);
             }
-            return "Cannot equip weapon. Hands full.";
+
+            return "Equipped weapon: " + w.getName();
         }
 
         if (item instanceof Armour a) {
-            boolean ok = player.getEquipment().equipArmour(a);
 
-            if (ok) {
-                inventory.removeItem(a);
-                return "Equipped armour: " + a.getName();
+            Item replaced = player.getEquipment().equipArmour(a);
+
+            inventory.removeItem(a);
+
+            if (replaced != null) {
+                inventory.addItem(replaced);
             }
-            return "Cannot equip armour. Invalid slot.";
+
+            return "Equipped armour: " + a.getName();
         }
 
         return "Item cannot be equipped.";

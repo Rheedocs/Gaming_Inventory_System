@@ -34,13 +34,18 @@ public class ItemTablePrinter {
                 displayName += " x" + c.getStackSize();
             }
 
+            double displayWeight = item.getWeight();
+            if (item instanceof Consumable c) {
+                displayWeight = c.getWeight() * c.getStackSize();
+            }
+
             sb.append(String.format(Locale.ROOT,
                     "| %-2d | %-20s | %-10s | %-10s | %6.1f |\n",
                     index++,
                     displayName,
                     item.getType(),
                     item.getRarity(),
-                    item.getWeight()
+                    displayWeight
             ));
         }
 

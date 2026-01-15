@@ -3,6 +3,9 @@ package domain;
 import domain.enums.ArmourSlot;
 import domain.enums.HandType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // Håndterer hvad spilleren har equippet i hænder og rustnings-slots.
 public class Equipment {
 
@@ -14,55 +17,56 @@ public class Equipment {
     private Armour legs;
     private Armour feet;
 
-    // Forsøger at equippe et våben i korrekt hånd
-    public boolean equipWeapon(Weapon w) {
+    // Returnerer alle items der blev erstattet/ryddet ud (0-2 stk).
+    // Bruges af service til at putte dem tilbage i inventory.
+    public List<Item> equipWeapon(Weapon weapon) {
 
-        HandType handType = w.getHandType();
+        List<Item> replaced = new ArrayList<>();
 
-        // TwoHand fylder begge hænder og rydder offhand
-        if (handType == HandType.TWO_HAND) {
-            mainHand = w;
+        // TWO_HAND: kræver begge hænder -> alt i hænderne ryger ud
+        if (weapon.getHandType() == HandType.TWO_HAND) {
+
+            if (mainHand != null) replaced.add(mainHand);
+            if (offHand != null) replaced.add(offHand);
+
+            mainHand = weapon;
             offHand = null;
-            return true;
+            return replaced;
         }
 
-        // OneHand prøver først mainHand, derefter OffHand
-        if (handType == HandType.ONE_HAND) {
-            if (mainHand == null) {
-                mainHand = w;
-                return true;
-            }
-            if (offHand == null) {
-                offHand = w;
-                return true;
-            }
-            return false;
+        // ONE_HAND / OFF_HAND:
+        // 1) hvis main er tom -> put i main
+        if (mainHand == null) {
+            mainHand = weapon;
+            return replaced;
         }
 
-        // OffHand kan kun ligge i offHand
-        if (handType == HandType.OFF_HAND) {
-            if (offHand == null) {
-                offHand = w;
-                return true;
-            }
-            return false;
+        // 2) hvis off er tom -> put i off
+        if (offHand == null) {
+            offHand = weapon;
+            return replaced;
         }
 
-        return false;
+        // 3) fallback: erstat mainhand
+        replaced.add(mainHand);
+        mainHand = weapon;
+        return replaced;
     }
 
-    // Sætter rustning i korrekt slot (erstatter eksisterende armour i slottet)
-    public boolean equipArmour(Armour a) {
+    // Returnerer evt. erstattet armour (eller null)
+    public Item equipArmour(Armour a) {
 
         ArmourSlot slot = a.getSlot();
+        Item replaced = null;
 
         switch (slot) {
-            case HEAD -> { head = a; return true; }
-            case CHEST -> { chest = a; return true; }
-            case LEGS -> { legs = a; return true; }
-            case FEET -> { feet = a; return true; }
-            default -> { return false; }
+            case HEAD -> { replaced = head; head = a; }
+            case CHEST -> { replaced = chest; chest = a; }
+            case LEGS -> { replaced = legs; legs = a; }
+            case FEET -> { replaced = feet; feet = a; }
         }
+
+        return replaced;
     }
 
     // Fjerner item fra valgt slot og returnerer det (UI må gerne sende tekst)
@@ -86,32 +90,13 @@ public class Equipment {
         if (slot == null || item == null) return;
 
         switch (slot.toLowerCase()) {
-            case "mainhand" -> {
-                if (item instanceof Weapon w) { mainHand = w;
-                }
-            }
-            case "offhand" -> {
-                if (item instanceof Weapon w) { offHand = w;
-                }
-            }
-            case "head" -> {
-                if (item instanceof Armour a) { head = a;
-                }
-            }
-            case "chest" -> {
-                if (item instanceof Armour a) { chest = a;
-                }
-            }
-            case "legs" -> {
-                if (item instanceof Armour a) { legs = a;
-                }
-            }
-            case "feet" -> {
-                if (item instanceof Armour a) { feet = a;
-                }
-            }
+            case "mainhand" -> { if (item instanceof Weapon w) mainHand = w; }
+            case "offhand" -> { if (item instanceof Weapon w) offHand = w; }
+            case "head" -> { if (item instanceof Armour a) head = a; }
+            case "chest" -> { if (item instanceof Armour a) chest = a; }
+            case "legs" -> { if (item instanceof Armour a) legs = a; }
+            case "feet" -> { if (item instanceof Armour a) feet = a; }
         }
-
     }
 
     public boolean isEmpty() {

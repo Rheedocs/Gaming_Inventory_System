@@ -245,18 +245,13 @@ public class Menu {
                 return;
             }
 
-            // Spørg kun om flere items hvis det faktisk gav mening (typisk ved "added")
             if (result.toLowerCase().contains("added")) {
                 if (askYesNo("Add another item?")) {
-                    pause();
-                    return;
+                    continue; // y -> ny add-runde
                 }
-                // "y" -> loop starter forfra og laver en ny add-runde
-            } else {
-                // Hvis add fejlede (fx slots/vægt/andet), så giv tid til at læse beskeden
-                pause();
-                return;
             }
+            pause();
+            return; // n -> tilbage
         }
     }
 
@@ -272,29 +267,115 @@ public class Menu {
             System.out.print("Item to remove (or type 'exit' to go back): ");
             String name = input.nextLine().trim();
 
-            if (name.equalsIgnoreCase("exit")) {
-                return;
-            }
+            // Exit tilbage til Inventory menu
+            if (name.equalsIgnoreCase("exit")) return;
 
+            // Guard: tomt navn
             if (name.isBlank()) {
                 ConsoleUI.message("Please enter an item name.");
+                pause();
                 continue;
             }
 
-            String result = service.removeItemByName(name);
+            // Find item via service (brugervenlig: ingen exception her)
+            Item item = service.findItemByName(name);
+            if (item == null) {
+                ConsoleUI.message("Item not found.");
+                pause();
+                continue; // VIGTIG: ellers falder vi videre med null
+            }
+
+            String result;
+
+            // --- Consumable: spørg om amount ---
+            if (item instanceof Consumable c) {
+
+                int amount;
+
+                // Loop indtil vi får et gyldigt amount, eller cancel
+                while (true) {
+                    System.out.print("Amount to remove (1-" + c.getStackSize() + "), type 0 to cancel: ");
+                    String amtText = input.nextLine().trim();
+
+                    // Cancel: hop tilbage til item-valg uden at ændre noget
+                    if (amtText.equals("0")) {
+                        ConsoleUI.message("No items were removed. Inventory unchanged.");
+                        // (valgfrit) pause her, hvis du vil give tid til at læse
+                        pause();
+                        amount = -1; // marker cancel
+                        break;
+                    }
+
+                    // Tomt input er ikke tilladt (brugeren skal vælge aktivt)
+                    if (amtText.isBlank()) {
+                        ConsoleUI.message("Please choose an amount to remove.");
+                        pause();
+                        continue;
+                    }
+
+                    try {
+                        amount = Integer.parseInt(amtText);
+
+                        // Negative tal giver ingen mening her
+                        if (amount < 0) {
+                            ConsoleUI.message("Amount must be positive.");
+                            pause();
+                            continue;
+                        }
+
+                        // 0 håndteres som cancel, så her er 0 ugyldigt
+                        if (amount == 0) {
+                            ConsoleUI.message("Please choose an amount (1+), or 0 to cancel.");
+                            pause();
+                            continue;
+                        }
+
+                        break; // gyldigt amount
+
+                    } catch (NumberFormatException e) {
+                        ConsoleUI.message("Please enter a valid number.");
+                        pause();
+                    }
+                }
+
+                // Hvis cancel -> tilbage til item prompt
+                if (amount == -1) {
+                    continue;
+                }
+
+                // Advarsel: hvis amount >= stackSize, så fjernes hele stacken
+                if (amount >= c.getStackSize()) {
+                    if (!askYesNo("This will remove the entire stack!... Are you sure?")) {
+                        ConsoleUI.message("No items were removed. Inventory unchanged.");
+                        pause();
+                        continue; // tilbage til item prompt
+                    }
+                }
+
+                // Udfør removal i service
+                result = service.removeItemByName(name, amount);
+
+            } else {
+                // --- Ikke-consumable: fjern hele itemet ---
+                result = service.removeItemByName(name);
+            }
+
             ConsoleUI.message(result);
 
-            // Hvis item blev fjernet, spørg om brugeren vil fortsætte
-            if (result.toLowerCase().contains("removed")) {
+            // Success-check: jeres success-beskeder indeholder "Removed"
+            boolean didRemove = result.toLowerCase().contains("removed");
+
+            // Hvis der blev fjernet noget: spørg om man vil fortsætte
+            if (didRemove) {
                 if (askYesNo("Remove another item?")) {
-                    pause(); // først her giver pause mening
-                    return;
+                    continue; // ja -> loop
                 }
-                // "y" -> loop fortsætter og fjerner et mere
-            } else {
-                // item blev ikke fjernet → giv tid til at læse beskeden
-                pause();
+                // nej -> tilbage til Inventory menu
+                return;
             }
+
+            // Hvis intet blev fjernet: giv tid til at læse beskeden
+            pause();
         }
     }
 
@@ -354,8 +435,9 @@ public class Menu {
             printEquipment();
 
             if (askYesNo("Equip another item?")) {
-                return;
+                continue;
             }
+            return;
         }
     }
 
@@ -393,10 +475,10 @@ public class Menu {
                 return;
             }
 
-            // Ét stop-punkt er nok
             if (askYesNo("Unequip another item?")) {
-                return;
+                continue; // y -> tag en mere
             }
+            return; // n -> tilbage
         }
     }
 
@@ -463,10 +545,10 @@ public class Menu {
                 }
 
                 if (askYesNo("Use another consumable?")) {
-                    pause();
-                    return;
+                    continue; // y -> loop fortsætter og bruger en mere
                 }
-                // "y" -> loop fortsætter og bruger en mere
+                pause();
+                return; // n -> tilbage
 
             } else {
                 ConsoleUI.message(result);
@@ -736,15 +818,15 @@ public class Menu {
     }
 
     // UI helper: y/n prompt, så vi ikke copy-paster den samme while-loop logik 3 steder.
-    private boolean askYesNo(String prompt) {
+    private boolean askYesNo(String question) {
         while (true) {
-            System.out.print(prompt + " (y/n): ");
+            System.out.print(question + " (y/n): ");
             String answer = input.nextLine().trim().toLowerCase();
 
-            if (answer.equals("y")) return false;
-            if (answer.equals("n")) return true;
+            if (answer.equals("y") || answer.equals("yes")) return true;
+            if (answer.equals("n") || answer.equals("no")) return false;
 
-            ConsoleUI.message("Please enter y or n.");
+            ConsoleUI.message("Please type y or n.");
         }
     }
 }

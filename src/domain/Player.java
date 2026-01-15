@@ -5,7 +5,7 @@ public class Player {
 
     private String name;
     private Inventory inventory; // spillerens inventory
-    private Equipment equipment = new Equipment();
+    private final Equipment equipment = new Equipment();
 
     public Player(String name) {
         this.name = name;
@@ -30,10 +30,6 @@ public class Player {
 
     public Equipment getEquipment() {
         return equipment;
-    }
-
-    public void setEquipment(Equipment equipment) {
-        this.equipment = equipment;
     }
 
     @Override

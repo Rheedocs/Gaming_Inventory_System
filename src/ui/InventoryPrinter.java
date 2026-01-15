@@ -36,6 +36,12 @@ public class InventoryPrinter {
                     displayName += " x" + c.getStackSize();
                 }
 
+                // Weight-kolonnen: vis samlet vægt for stacks (consumables), ellers normal weight
+                double displayWeight = item.getWeight();
+                if (item instanceof Consumable c) {
+                    displayWeight = c.getWeight() * c.getStackSize();
+                }
+
                 // Hver række formatteres med faste bredder,
                 // så alle kolonner flugter lodret i konsollen
                 // Locale.ROOT sikrer at decimaler altid bruger punktum (.) uanset OS-sprog
@@ -45,7 +51,7 @@ public class InventoryPrinter {
                         displayName,
                         item.getType(),
                         item.getRarity(),
-                        item.getWeight()
+                        displayWeight
                 ));
             }
         }
