@@ -18,6 +18,7 @@ public class EquipmentPrinter {
         sb.append("| Slot     | Name                 | Type       | Rarity     | Weight |\n");
         sb.append("+----------+----------------------+------------+------------+--------+\n");
 
+        // Erstater Slot med MainHand, OffHand osv.
         // MainHand
         appendRow(sb, "MainHand", eq.getMainHand());
         // OffHand
@@ -47,7 +48,8 @@ public class EquipmentPrinter {
 
         String displayName = item.getName();
 
-        // lille UI-hjælp: vis stack i navnet for consumables (hvis I en dag equipper dem)
+        // lille UI-hjælp: vis stack i navnet for consumables (hvis vi en dag equipper dem)
+        // Kan ikke equippe consumables
         if (item instanceof Consumable c) {
             displayName += " x" + c.getStackSize();
         }

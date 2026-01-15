@@ -1,5 +1,6 @@
 package ui;
 
+// Hjælper class til konsol-UI: viser headers, menuoptions og beskeder i rammer med fast bredde og justering.
 public class ConsoleUI {
 
     // Fast bredde, matcher menu- og feedbackbokse
@@ -35,6 +36,7 @@ public class ConsoleUI {
 
     // ---------- Hjælpemetoder ----------
 
+    // Bruges til at formatere tekst til UI, så alle strenge får samme bredde
     private static String padRight(String s) {
         if (s.length() > ConsoleUI.WIDTH) {
             return s.substring(0, ConsoleUI.WIDTH);
@@ -42,6 +44,7 @@ public class ConsoleUI {
         return s + " ".repeat(ConsoleUI.WIDTH - s.length());
     }
 
+    // Bruges til at centrere teksten i konsollen, inden for en fast bredde (ConsoleUI.WIDTH)
     private static String center(String s) {
         if (s.length() > ConsoleUI.WIDTH) {
             return s.substring(0, ConsoleUI.WIDTH);

@@ -247,7 +247,7 @@ public class Menu {
 
             // Spørg kun om flere items hvis det faktisk gav mening (typisk ved "added")
             if (result.toLowerCase().contains("added")) {
-                if (!askYesNo("Add another item?")) {
+                if (askYesNo("Add another item?")) {
                     pause();
                     return;
                 }
@@ -286,7 +286,7 @@ public class Menu {
 
             // Hvis item blev fjernet, spørg om brugeren vil fortsætte
             if (result.toLowerCase().contains("removed")) {
-                if (!askYesNo("Remove another item?")) {
+                if (askYesNo("Remove another item?")) {
                     pause(); // først her giver pause mening
                     return;
                 }
@@ -353,7 +353,7 @@ public class Menu {
             // Vis altid equipment efter et equip-forsøg, så brugeren kan se ændringen
             printEquipment();
 
-            if (!askYesNo("Equip another item?")) {
+            if (askYesNo("Equip another item?")) {
                 return;
             }
         }
@@ -394,7 +394,7 @@ public class Menu {
             }
 
             // Ét stop-punkt er nok
-            if (!askYesNo("Unequip another item?")) {
+            if (askYesNo("Unequip another item?")) {
                 return;
             }
         }
@@ -437,6 +437,9 @@ public class Menu {
 
             String result = service.useConsumable(name);
 
+            // Result kan indeholde flere dele adskilt med '|'.
+            // Ved at bruge split() bliver teksten opdelt i et array,
+            // så hovedbesked og evt. ekstra information kan håndteres separat.
             if (result.toLowerCase().contains("used consumable")) {
                 String[] parts = result.split("\\|");
                 ConsoleUI.message(parts[0].trim());
@@ -459,7 +462,7 @@ public class Menu {
                     return;
                 }
 
-                if (!askYesNo("Use another consumable?")) {
+                if (askYesNo("Use another consumable?")) {
                     pause();
                     return;
                 }
@@ -695,6 +698,8 @@ public class Menu {
         }
     }
 
+    //Spørger brugeren om input og returnere korrekt enum-værdi (T er typen af enum); gentager indtil gyldigt svar.
+    //Kan arbejde med alle enum typer.
     private <T extends Enum<T>> T readEnum(Class<T> enumClass, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -711,6 +716,7 @@ public class Menu {
         }
     }
 
+    // Validere om bruger-input svarer til et gyldigt equipment-slot
     private boolean isValidUnequipSlot(String slot) {
         if (slot == null) return false;
         String s = slot.trim().toLowerCase();
@@ -735,8 +741,8 @@ public class Menu {
             System.out.print(prompt + " (y/n): ");
             String answer = input.nextLine().trim().toLowerCase();
 
-            if (answer.equals("y")) return true;
-            if (answer.equals("n")) return false;
+            if (answer.equals("y")) return false;
+            if (answer.equals("n")) return true;
 
             ConsoleUI.message("Please enter y or n.");
         }

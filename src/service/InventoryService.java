@@ -305,6 +305,7 @@ public class InventoryService {
         return results;
     }
 
+    // Returnerer alle items fra inventory med vægt mellem min og max
     public List<Item> filterByWeight(double min, double max) {
         List<Item> results = new ArrayList<>();
 

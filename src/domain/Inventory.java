@@ -99,6 +99,8 @@ public class Inventory {
                 throw new MaxWeightReached("Max weight exceeded.");
             }
 
+            // Tjekker om det nye consumable har samme navn som den eksisterende consumable
+            // Hvis det er sandt, så stackes den nye consumable sammen med den eksisterende consumable
             for (Item existing : slots) {
                 if (existing instanceof Consumable cOld &&
                         cOld.getName().equalsIgnoreCase(cNew.getName())) {
@@ -165,7 +167,7 @@ public class Inventory {
     }
 
     // --- sortering ---
-
+    // Sortere efter alfabetiske rækkefølge
     public void sortByName() {
         slots.sort(Comparator.comparing(Item::getName));
     }

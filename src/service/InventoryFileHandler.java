@@ -18,8 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-// Håndterer gemning og indlæsning af inventory til/fra tekstfil i et simpelt custom format.
-// DAL-lag: laver kun fil-I/O og parsing. UI kalder service, service kalder DAL.
+// Håndterer gemning og indlæsning af Inventory i et simpelt tekstformat.
+// save(): serialiserer domæneobjekter til tekst.
+// load(): parser tekst og genskaber domæneobjekter.
+// Klassen fungerer som DAL og indeholder ingen UI- eller forretningslogik.
 public class InventoryFileHandler {
 
     // Gemmer hele inventory-tilstanden til en tekstfil
@@ -84,6 +86,8 @@ public class InventoryFileHandler {
             inventory.clearItems();
 
             // --- FASE 2: læs filen linje for linje ---
+            // Læser filen sekventielt og behandler hver linje uafhængigt.
+            // Kommentarer og tomme linjer ignoreres for robust parsing.
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
 
@@ -107,13 +111,16 @@ public class InventoryFileHandler {
                 }
 
                 // --- FASE 4: item-linje ---
-                // Format: TYPE;key=value;key=value;...
+                // Item-linjer har formatet: TYPE;key=value;key=value;...
+                // Først opdeles linjen i et array, derefter parses key=value-parrene.
                 String[] parts = line.split(";");
                 if (parts.length == 0) continue;
 
                 ItemType type = ItemType.valueOf(normalizeEnum(parts[0]));
 
                 // --- FASE 5: parse key=value felter ---
+                // HashMap bruges som midlertidig datastruktur under parsing,
+                // så værdier kan slås op ved navn i stedet for position.
                 Map<String, String> map = parseKeyValuePairs(parts);
 
                 Rarity rarity = Rarity.valueOf(normalizeEnum(map.get("rarity")));
@@ -182,25 +189,26 @@ public class InventoryFileHandler {
         }
     }
 
-    // Parser en item-linje af typen: TYPE;key=value;key=value;...
-    // Returnerer key/value felterne som Map, så load() forbliver letlæselig.
+    // Parser item-linjen fra array-format til key/value-opslag.
+    // Gør load()-metoden mere læsbar og uafhængig af felt-rækkefølge.
     private static Map<String, String> parseKeyValuePairs(String[] parts) {
         Map<String, String> map = new HashMap<>();
         for (int i = 1; i < parts.length; i++) {
 
             String part = parts[i];
-            int eq = part.indexOf('=');
-            if (eq < 0) continue;
+            int equal = part.indexOf('=');
+            if (equal < 0) continue;
 
-            String key = part.substring(0, eq).trim();
-            String value = part.substring(eq + 1).trim();
+            String key = part.substring(0, equal).trim();
+            String value = part.substring(equal + 1).trim();
 
             map.put(key, value);
         }
         return map;
     }
 
-    // Gør enum-parsing tolerant: "Common" -> "COMMON", "two hand" -> "TWO_HAND"
+    // Gør enum-parsing robust over for variationer i inputformat.
+    // fx. "Common" -> "COMMON", "two hand" -> "TWO_HAND"
     private static String normalizeEnum(String text) {
         if (text == null) return "";
         return text.trim()
