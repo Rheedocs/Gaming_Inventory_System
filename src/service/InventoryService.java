@@ -243,18 +243,37 @@ public class InventoryService {
 
         if (item instanceof Weapon w) {
 
-            // Equipment returnerer 0-2 items der blev skubbet ud
             List<Item> replaced = player.getEquipment().equipWeapon(w);
 
-            // Ny weapon flyttes fra inventory -> equipment
-            inventory.removeItem(w);
-
-            // Skubbede items flyttes tilbage til inventory
-            for (Item r : replaced) {
-                inventory.addItem(r);
+            if (replaced == null) {
+                return "Cannot equip " + w.getName() + ". Two-hand weapon blocks other hand";
             }
 
-            return "Equipped weapon: " + w.getName();
+            // Flyt ny weapon fra inventory -> equipment
+            inventory.removeItem(w);
+
+            try {
+                // Skubbede items flyttes tilbage til inventory
+                for (Item r : replaced) {
+                    boolean ok = inventory.addItem(r);
+
+                    // addItem kan enten returnere false (slots) eller kaste (weight)
+                    if (!ok) {
+                        throw new RuntimeException("Inventory is full.");
+                    }
+                }
+
+                return "Equipped weapon: " + w.getName();
+
+            } catch (MaxWeightReached e) {
+                // Fail-safe: giv ny weapon tilbage til inventory så den ikke "forsvinder"
+                inventory.addItem(w);
+                return "Could not equip " + w.getName() + ". " + e.getMessage();
+
+            } catch (RuntimeException e) {
+                inventory.addItem(w);
+                return "Could not equip " + w.getName() + ". " + e.getMessage();
+            }
         }
 
         if (item instanceof Armour a) {

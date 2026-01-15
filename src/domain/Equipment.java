@@ -18,36 +18,45 @@ public class Equipment {
     private Armour feet;
 
     // Returnerer alle items der blev erstattet/ryddet ud (0-2 stk).
-    // Bruges af service til at putte dem tilbage i inventory.
+    // Returnerer null hvis equip ikke er tilladt (fx OFF_HAND mens TWO_HAND er equipped).
+    // Bruges af service til at putte erstattede items tilbage i inventory.
     public List<Item> equipWeapon(Weapon weapon) {
+
+        if (weapon == null) return null; // NPE-guard
 
         List<Item> replaced = new ArrayList<>();
 
-        // TWO_HAND: kræver begge hænder -> alt i hænderne ryger ud
-        if (weapon.getHandType() == HandType.TWO_HAND) {
+        // Hvis der sidder TWO_HAND i main og vi equipper noget andet,
+        // så skub TWO_HAND ud først (som et replaced item)
+        if (mainHand != null && mainHand.getHandType() == HandType.TWO_HAND
+                && weapon.getHandType() != HandType.TWO_HAND) {
 
+            replaced.add(mainHand);
+            mainHand = null;
+            // offHand er allerede null i jeres TWO_HAND flow, men vi rydder for sikkerhed:
+            offHand = null;
+        }
+
+        // TWO_HAND: ryd begge hænder
+        if (weapon.getHandType() == HandType.TWO_HAND) {
             if (mainHand != null) replaced.add(mainHand);
             if (offHand != null) replaced.add(offHand);
-
             mainHand = weapon;
             offHand = null;
             return replaced;
         }
 
-        // ONE_HAND / OFF_HAND:
-        // 1) hvis main er tom -> put i main
-        if (mainHand == null) {
-            mainHand = weapon;
-            return replaced;
-        }
-
-        // 2) hvis off er tom -> put i off
-        if (offHand == null) {
+        // OFF_HAND: må kun i offHand
+        if (weapon.getHandType() == HandType.OFF_HAND) {
+            if (offHand != null) replaced.add(offHand);
             offHand = weapon;
             return replaced;
         }
 
-        // 3) fallback: erstat mainhand
+        // ONE_HAND: main først, ellers off, ellers erstat main
+        if (mainHand == null) { mainHand = weapon; return replaced; }
+        if (offHand == null)  { offHand = weapon; return replaced; }
+
         replaced.add(mainHand);
         mainHand = weapon;
         return replaced;
